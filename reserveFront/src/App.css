@@ -24,14 +24,30 @@
   background-color: #ffffff;
 }
 
-.reservation-calendar .reserved {
-  background-color: #ffcccb; /* Czerwony dla zarezerwowanych slotów */
-  cursor: not-allowed;
+.reservation-calendar td.reserved {
+  background-color: #ffcccb; /* Red for reserved slots */
+  border-color: #ffcccb; /* Border color same as background */
+  border-radius: 0; /* Reset border-radius */
+  text-align: center;
 }
 
-.reservation-calendar .available:hover {
-  background-color: #e7f5fe; /* Niebieski dla dostępnych slotów przy hover */
+/* Add new styles for continuous reservations */
+.reservation-calendar td.reserved-middle {
+  border-left: none; /* Remove left border for middle slots */
 }
+
+.reservation-calendar td.reserved-start {
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border-right: none; /* Remove right border for the start slot */
+}
+
+.reservation-calendar td.reserved-end {
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+  border-left: none; /* Remove left border for the end slot */
+}
+
 
 /* Tutaj możesz dodać style dla modala rezerwacji */
 .modal {
@@ -76,11 +92,6 @@
 
 
 
-.slot-reserved {
-  color: red;
-  cursor: not-allowed;
-}
 
-.slot-available {
-  cursor: pointer;
-}
+
+
