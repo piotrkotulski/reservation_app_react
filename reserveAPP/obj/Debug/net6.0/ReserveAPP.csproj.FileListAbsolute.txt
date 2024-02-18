@@ -35,3 +35,13 @@ C:\io\todoAPP\api\todoAPI\todoAPI\obj\Debug\net6.0\refint\ReserveAPP.dll
 C:\io\todoAPP\api\todoAPI\todoAPI\obj\Debug\net6.0\ReserveAPP.pdb
 C:\io\todoAPP\api\todoAPI\todoAPI\obj\Debug\net6.0\ReserveAPP.genruntimeconfig.cache
 C:\io\todoAPP\api\todoAPI\todoAPI\obj\Debug\net6.0\ref\ReserveAPP.dll
+C:\Users\Jakub\Documents\GitHub\reservation_app_react\reserveAPP\obj\Debug\net6.0\ReserveAPP.csproj.AssemblyReference.cache
+C:\Users\Jakub\Documents\GitHub\reservation_app_react\reserveAPP\obj\Debug\net6.0\ReserveAPP.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Jakub\Documents\GitHub\reservation_app_react\reserveAPP\obj\Debug\net6.0\ReserveAPP.AssemblyInfoInputs.cache
+C:\Users\Jakub\Documents\GitHub\reservation_app_react\reserveAPP\obj\Debug\net6.0\ReserveAPP.AssemblyInfo.cs
+C:\Users\Jakub\Documents\GitHub\reservation_app_react\reserveAPP\obj\Debug\net6.0\ReserveAPP.csproj.CoreCompileInputs.cache
+C:\Users\Jakub\Documents\GitHub\reservation_app_react\reserveAPP\obj\Debug\net6.0\ReserveAPP.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\Jakub\Documents\GitHub\reservation_app_react\reserveAPP\obj\Debug\net6.0\ReserveAPP.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\Jakub\Documents\GitHub\reservation_app_react\reserveAPP\obj\Debug\net6.0\ReserveAPP.dll
+C:\Users\Jakub\Documents\GitHub\reservation_app_react\reserveAPP\obj\Debug\net6.0\ref\ReserveAPP.dll
+C:\Users\Jakub\Documents\GitHub\reservation_app_react\reserveAPP\obj\Debug\net6.0\ReserveAPP.pdb
