@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+//import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import NavigationBar from './components/views/Navbar';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'; // zmiana importu na Routes

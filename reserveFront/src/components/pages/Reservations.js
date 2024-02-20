@@ -1,21 +1,21 @@
 import React, { useState, useEffect, useReducer } from 'react';
-import { Container, Table, Form, Button, Row, Col } from 'react-bootstrap';
+import { Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Button, Grid, Paper } from '@mui/material';
 import { debounce } from 'lodash';
 
 // Definicja reducera do obsługi stanu filtrów
 const filterReducer = (state, action) => {
-  switch (action.type) {
-    case 'SET_COURT_ID':
-      return { ...state, courtId: action.courtId };
-    case 'SET_USER_ID':
-      return { ...state, userId: action.userId };
-    case 'SET_DATE':
-      return { ...state, date: action.date };
-    case 'CLEAR':
-      return { courtId: '', userId: '', date: '' };
-    default:
-      return state;
-  }
+    switch (action.type) {
+        case 'SET_COURT_ID':
+            return { ...state, courtId: action.courtId };
+        case 'SET_USER_ID':
+            return { ...state, userId: action.userId };
+        case 'SET_DATE':
+            return { ...state, date: action.date };
+        case 'CLEAR':
+            return { courtId: '', userId: '', date: '' };
+        default:
+            return state;
+    }
 };
 
 const Reservations = () => {
@@ -73,56 +73,64 @@ const Reservations = () => {
     return (
         <Container className="mt-5">
             <h1>Rezerwacje</h1>
-            <Row className="mb-4">
-                <Col md={4}>
-                    <Form.Control
+            <Grid container spacing={3} className="mb-4">
+                <Grid item md={4}>
+                    <TextField
+                        fullWidth
                         type="text"
                         placeholder="ID Kortu"
                         name="courtId"
+                        variant="outlined"
                         onChange={handleFilterChange}
                     />
-                </Col>
-                <Col md={4}>
-                    <Form.Control
+                </Grid>
+                <Grid item md={4}>
+                    <TextField
+                        fullWidth
                         type="text"
                         placeholder="ID Użytkownika"
                         name="userId"
+                        variant="outlined"
                         onChange={handleFilterChange}
                     />
-                </Col>
-                <Col md={4}>
-                    <Form.Control
+                </Grid>
+                <Grid item md={4}>
+                    <TextField
+                        fullWidth
                         type="date"
                         name="date"
+                        variant="outlined"
                         onChange={handleFilterChange}
                     />
-                </Col>
-            </Row>
-            <Button variant="secondary" onClick={clearFilters}>Wyczyść filtry</Button>
-            <Table striped bordered hover className="mt-4">
-                <thead>
-                    <tr>
-                        <th>ID Rezerwacji</th>
-                        <th>ID Kortu</th>
-                        <th>ID Użytkownika</th>
-                        <th>Data</th>
-                        <th>Godzina Rozpoczęcia</th>
-                        <th>Godzina Zakończenia</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {filteredReservations.map((reservation) => (
-                        <tr key={reservation.ReservationId}>
-                            <td>{reservation.ReservationId}</td>
-                            <td>{reservation.CourtId}</td>
-                            <td>{reservation.UserId}</td>
-                            <td>{new Date(reservation.Date).toLocaleDateString()}</td>
-                            <td>{reservation.StartTime}</td>
-                            <td>{reservation.EndTime}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </Table>
+                </Grid>
+            </Grid>
+            <Button variant="outlined" color="primary" onClick={clearFilters}>Wyczyść filtry</Button>
+            <TableContainer component={Paper} className="mt-4">
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>ID Rezerwacji</TableCell>
+                            <TableCell>ID Kortu</TableCell>
+                            <TableCell>ID Użytkownika</TableCell>
+                            <TableCell>Data</TableCell>
+                            <TableCell>Godzina Rozpoczęcia</TableCell>
+                            <TableCell>Godzina Zakończenia</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {filteredReservations.map((reservation) => (
+                            <TableRow key={reservation.ReservationId}>
+                                <TableCell>{reservation.ReservationId}</TableCell>
+                                <TableCell>{reservation.CourtId}</TableCell>
+                                <TableCell>{reservation.UserId}</TableCell>
+                                <TableCell>{new Date(reservation.Date).toLocaleDateString()}</TableCell>
+                                <TableCell>{reservation.StartTime}</TableCell>
+                                <TableCell>{reservation.EndTime}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
         </Container>
     );
 }
