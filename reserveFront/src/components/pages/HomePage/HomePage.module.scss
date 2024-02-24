@@ -41,6 +41,14 @@
       color: $color-warning;
     }
   }
+  .trashBtt {
+    background-color: $color-dark;
+
+    &:hover {
+      background-color: $color-light;
+      color: $color-dark;
+    }
+  }
 
   button {
     color: $color-light;
@@ -62,6 +70,11 @@
   min-width:185px ;
 }
 
+
+.hourCell{
+  width: 150px;
+  text-align: center;
+}
 
 
 

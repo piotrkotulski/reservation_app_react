@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-//import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/global.scss';
 import NavigationBar from './components/views/Navbar';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'; // zmiana importu na Routes
@@ -8,6 +7,7 @@ import Reports from './components/pages/Reports';
 import Reservations from './components/pages/Reservations';
 import Users from './components/pages/Users';
 import { format, addMinutes } from 'date-fns';
+import styles from "./components/pages/HomePage/HomePage.module.scss";
 
 function App() {
   const API_URL = "http://localhost:5160/";
@@ -76,7 +76,7 @@ function App() {
     setSelectedReservation(null);
   };
 
-  const confirmReservation = async () => {
+  const confirmReservation = async (duration) => {
     const today = new Date();
     const startTime = new Date(`${format(today, 'yyyy-MM-dd')}T${selectedSlot.time}`);
     const endTime = new Date(startTime);
@@ -146,7 +146,7 @@ function App() {
 
   const timeSlots = times.map(time => (
       <tr key={time}>
-        <td>{time}</td>
+        <td className={styles.hourCell}>{time}</td>
         {Array.from({ length: numCourts }, (_, i) => {
           const courtId = i + 1;
           const reservation = isReserved(courtId, time);

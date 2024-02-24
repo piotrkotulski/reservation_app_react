@@ -7,8 +7,8 @@
 }
 
 .reservation-calendar {
-  width: 100%;
-
+  width: 80%;
+margin: 0 100px 0 240px;
   border-collapse: collapse;
 }
 
@@ -29,25 +29,33 @@
 }
 
 .reservation-calendar td.reserved {
+
   background-color: #ffcccb; /* Red for reserved slots */
   border-color: #ffcccb; /* Border color same as background */
   border-radius: 0; /* Reset border-radius */
   text-align: center;
+
 }
 
 /* Add new styles for continuous reservations */
 .reservation-calendar td.reserved-middle {
-  border-left: none; /* Remove left border for middle slots */
+  border-left: 4px solid white ;
+  border-right: 4px solid white ;
 }
 
 .reservation-calendar td.reserved-start {
+  border-top: 4px solid white ;
+  border-left: 4px solid white ;
+  border-right: 4px solid white ;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
-  border-right: none; /* Remove right border for the start slot */
+
 }
 
 .reservation-calendar td.reserved-end {
+  border-left: 4px solid white ;
+  border-right: 4px solid white ;
   border-bottom-right-radius: 10px;
   border-bottom-left-radius: 10px;
-  border-left: none; /* Remove left border for the end slot */
+
 }
