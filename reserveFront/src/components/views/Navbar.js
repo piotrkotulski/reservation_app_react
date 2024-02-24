@@ -23,6 +23,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import ReportIcon from '@mui/icons-material/Assessment';
 import BookOnlineIcon from '@mui/icons-material/BookOnline';
 import PeopleIcon from '@mui/icons-material/People';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 const drawerWidth = 240;
 
@@ -107,6 +108,7 @@ export default function MiniDrawer() {
         { text: 'Reports', icon: <ReportIcon />, path: '/reports' },
         { text: 'Reservations', icon: <BookOnlineIcon />, path: '/reservations' },
         { text: 'Users', icon: <PeopleIcon />, path: '/users' },
+        { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
     ];
 
     return (

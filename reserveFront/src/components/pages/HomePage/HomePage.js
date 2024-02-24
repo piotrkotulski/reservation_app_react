@@ -10,8 +10,6 @@ import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
 const HomePage = ({
-                      numCourts,
-                      setNumCourts,
                       courtHeaders,
                       timeSlots,
                       selectedSlot,
@@ -29,17 +27,6 @@ const HomePage = ({
 
     return (
         <div>
-            <label>
-                Liczba kortów:
-                <input
-                    type="number"
-                    value={numCourts}
-                    onChange={e => setNumCourts(Number(e.target.value))}
-                    min="1"
-                    max="5"
-                />
-            </label>
-
             <table className="reservation-calendar">
                 <thead>
                 <tr>

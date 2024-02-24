@@ -6,6 +6,7 @@ import HomePage from "./components/pages/HomePage/HomePage";
 import Reports from './components/pages/Reports';
 import Reservations from './components/pages/Reservations';
 import Users from './components/pages/Users';
+import Settings from'./components/pages/Settings/Settings';
 import { format, addMinutes } from 'date-fns';
 import styles from "./components/pages/HomePage/HomePage.module.scss";
 
@@ -18,6 +19,8 @@ function App() {
   const [duration, setDuration] = useState(30);
   const [numCourts, setNumCourts] = useState(2);
   const [displayedReservations, setDisplayedReservations] = useState(new Set());
+  const [openingHour, setOpeningHour] = useState(8);
+  const [closingHour, setClosingHour] = useState(22);
 
   useEffect(() => {
     fetchReservations();
@@ -139,10 +142,17 @@ function App() {
   };
 
   const times = [];
-  for (let hour = 8; hour <= 20; hour++) {
-    times.push(`${hour < 10 ? '0' + hour : hour}:00`);
-    times.push(`${hour < 10 ? '0' + hour : hour}:30`);
+  for (let hour = openingHour; hour <= closingHour; hour++) {
+    let currentTime = new Date(); // Utwórz nowy obiekt Date
+    currentTime.setHours(hour, 0, 0, 0); // Ustaw godziny, minuty, sekundy i milisekundy
+
+    for (let minute = 0; minute < 60; minute += 30) {
+      let slotTime = addMinutes(currentTime, minute); // Dodaj minuty do obiektu Date
+      times.push(format(slotTime, 'HH:mm')); // Formatuj czas do 'HH:mm' i dodaj do tablicy
+    }
   }
+
+
 
   const timeSlots = times.map(time => (
       <tr key={time}>
@@ -208,6 +218,18 @@ function App() {
               <Route path="/reports" element={<Reports />} />
               <Route path="/reservations" element={<Reservations />} />
               <Route path="/users" element={<Users />} />
+              <Route path="/settings" element={
+                <Settings
+                    numCourts={numCourts}
+                    setNumCourts={setNumCourts}
+                    openingHour={openingHour}
+                    closingHour={closingHour}
+                    setOpeningHour={setOpeningHour}
+                    setClosingHour={setClosingHour}
+                />}
+              />
+
+
             </Routes>
           </div>
         </Router>
