@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/home/piotr/WebstormProjects/reserveApp2/reserveAPP/ReserveAPP.csproj": {}
+    "/home/piotr/WebstormProjects/reservation_app_react/reserveAPP/ReserveAPP.csproj": {}
   },
   "projects": {
-    "/home/piotr/WebstormProjects/reserveApp2/reserveAPP/ReserveAPP.csproj": {
+    "/home/piotr/WebstormProjects/reservation_app_react/reserveAPP/ReserveAPP.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/piotr/WebstormProjects/reserveApp2/reserveAPP/ReserveAPP.csproj",
+        "projectUniqueName": "/home/piotr/WebstormProjects/reservation_app_react/reserveAPP/ReserveAPP.csproj",
         "projectName": "ReserveAPP",
-        "projectPath": "/home/piotr/WebstormProjects/reserveApp2/reserveAPP/ReserveAPP.csproj",
+        "projectPath": "/home/piotr/WebstormProjects/reservation_app_react/reserveAPP/ReserveAPP.csproj",
         "packagesPath": "/home/piotr/.nuget/packages/",
-        "outputPath": "/home/piotr/WebstormProjects/reserveApp2/reserveAPP/obj/",
+        "outputPath": "/home/piotr/WebstormProjects/reservation_app_react/reserveAPP/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/home/piotr/.nuget/NuGet/NuGet.Config"

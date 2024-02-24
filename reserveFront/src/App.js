@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 //import 'bootstrap/dist/css/bootstrap.min.css';
-import './App.css';
+import './styles/global.scss';
 import NavigationBar from './components/views/Navbar';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'; // zmiana importu na Routes
-import HomePage from "./components/pages/HomePage";
+import HomePage from "./components/pages/HomePage/HomePage";
 import Reports from './components/pages/Reports';
 import Reservations from './components/pages/Reservations';
 import Users from './components/pages/Users';

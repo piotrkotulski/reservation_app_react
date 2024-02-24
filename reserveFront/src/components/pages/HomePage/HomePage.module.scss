@@ -1,0 +1,74 @@
+@import "../../../styles/settings";
+
+/* Tutaj możesz dodać style dla modala rezerwacji */
+.modal {
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+
+/* Styl dla przycisków wewnątrz modala */
+.modalContent {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 600px; /* Aby nie była zbyt szeroka na dużych ekranach */
+  border-radius: 10px;
+
+  .successBtt {
+    background-color: $color-success;
+
+    &:hover {
+      background-color: $color-light;
+      color: $color-success;
+
+    }
+  }
+
+  .deleteBtt {
+    background-color: $color-warning;
+
+    &:hover {
+      background-color: $color-light;
+      color: $color-warning;
+    }
+  }
+
+  button {
+    color: $color-light;
+    font-weight: 700;
+    margin-top: 10px;
+    padding: 10px;
+    border: none;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+  }
+}
+
+.durationSelect{
+  min-width:185px ;
+}
+
+
+
+
+
+
+
+
+
+
+

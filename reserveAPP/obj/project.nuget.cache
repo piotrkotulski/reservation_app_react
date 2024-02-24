@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "ylEgTa8an1DIElRvcidSBL6DYiaKPx/LJ0wY3j/sdgXh8HgoZkY3txvEElRsPCDd+UlQsCtNFvTKXPO7BcGnbw==",
+  "dgSpecHash": "kWwJ5dHv4agY6OT+Heau3DCmMFDMbWhYhhSG4InFZJEN0gfS1fMOCPvKqGOWkFJGNXjYSo2J+6+Fmsu2l/sQkw==",
   "success": true,
-  "projectFilePath": "/home/piotr/WebstormProjects/reserveApp2/reserveAPP/ReserveAPP.csproj",
+  "projectFilePath": "/home/piotr/WebstormProjects/reservation_app_react/reserveAPP/ReserveAPP.csproj",
   "expectedPackageFiles": [
     "/home/piotr/.nuget/packages/microsoft.aspnetcore.jsonpatch/6.0.25/microsoft.aspnetcore.jsonpatch.6.0.25.nupkg.sha512",
     "/home/piotr/.nuget/packages/microsoft.aspnetcore.mvc.newtonsoftjson/6.0.25/microsoft.aspnetcore.mvc.newtonsoftjson.6.0.25.nupkg.sha512",
