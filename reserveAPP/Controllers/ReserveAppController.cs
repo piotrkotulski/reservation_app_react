@@ -25,6 +25,15 @@ namespace todoAPI.Controllers
             public TimeSpan EndTime { get; set; }
         }
 
+        public class UserModel
+        {
+            public int UserId { get; set; } // Automatycznie generowane
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+            public string Email { get; set; }
+            public string PhoneNumber { get; set; }
+        }
+
         [HttpPost]
         [Route("CreateReservation")]
         public JsonResult CreateReservation([FromBody] ReservationModel reservation)
@@ -74,9 +83,55 @@ namespace todoAPI.Controllers
             return new JsonResult(table);
         }
 
-        
+
+        [HttpPost]
+        [Route("CreateUser")]
+        public JsonResult CreateUser([FromBody] UserModel user)
+        {
+            string query = @"
+INSERT INTO dbo.Users (FirstName, LastName, Email, PhoneNumber)
+VALUES (@FirstName, @LastName, @Email, @PhoneNumber)";
+
+            string sqlDataSource = _configration.GetConnectionString("todoAppDBCon");
+            using (SqlConnection myConn = new SqlConnection(sqlDataSource))
+            {
+                myConn.Open();
+                using (SqlCommand myCommand = new SqlCommand(query, myConn))
+                {
+                    myCommand.Parameters.AddWithValue("@FirstName", user.FirstName);
+                    myCommand.Parameters.AddWithValue("@LastName", user.LastName);
+                    myCommand.Parameters.AddWithValue("@Email", user.Email);
+                    myCommand.Parameters.AddWithValue("@PhoneNumber", user.PhoneNumber);
+                    myCommand.ExecuteNonQuery();
+                }
+                myConn.Close();
+            }
+            return new JsonResult("User Created Successfully");
+        }
+
+        [HttpGet]
+        [Route("GetUsers")]
+        public JsonResult GetUsers()
+        {
+            string query = "SELECT UserId, FirstName, LastName, Email, PhoneNumber FROM dbo.Users";
+            DataTable table = new DataTable();
+            string sqlDataSource = _configration.GetConnectionString("todoAppDBCon");
+            SqlDataReader myReader;
+            using (SqlConnection myConn = new SqlConnection(sqlDataSource))
+            {
+                myConn.Open();
+                using (SqlCommand myCommand = new SqlCommand(query, myConn))
+                {
+                    myReader = myCommand.ExecuteReader();
+                    table.Load(myReader);
+                    myReader.Close();
+                    myConn.Close();
+                }
+            }
+            return new JsonResult(table);
+        }
 
 
-       
+
     }
 }
