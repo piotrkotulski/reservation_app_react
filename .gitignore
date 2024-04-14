@@ -1,0 +1,10 @@
+
+*.v1
+reserveAPP/.vs/ReserveAPP/v17/.suo
+reserveAPP/.vs/slnx.sqlite
+*.json
+reserveAPP/.vs/ReserveAPP/v17/.suo
+*.sqlite
+*.cache
+*.cache
+reserveAPP/obj/Debug/net6.0/ReserveAPP.GeneratedMSBuildEditorConfig.editorconfig
