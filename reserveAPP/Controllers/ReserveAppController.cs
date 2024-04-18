@@ -23,11 +23,16 @@ namespace todoAPI.Controllers
             public DateTime Date { get; set; }
             public TimeSpan StartTime { get; set; }
             public TimeSpan EndTime { get; set; }
+            public string ClientName { get; set; } 
+            public string PhoneNumber { get; set; }
+            public string Notes { get; set; } 
+            public bool MultiSportCard { get; set; } 
         }
+
 
         public class UserModel
         {
-            public int UserId { get; set; } // Automatycznie generowane
+            public int UserId { get; set; } 
             public string FirstName { get; set; }
             public string LastName { get; set; }
             public string Email { get; set; }
@@ -39,8 +44,8 @@ namespace todoAPI.Controllers
         public JsonResult CreateReservation([FromBody] ReservationModel reservation)
         {
             string query = @"
-    INSERT INTO dbo.Reservations (CourtId, UserId, Date, StartTime, EndTime)
-    VALUES (@CourtId, @UserId, @Date, @StartTime, @EndTime)";
+        INSERT INTO dbo.Reservations (CourtId, UserId, Date, StartTime, EndTime, ClientName, PhoneNumber, Notes, MultiSportCard)
+        VALUES (@CourtId, @UserId, @Date, @StartTime, @EndTime, @ClientName, @PhoneNumber, @Notes, @MultiSportCard)";
 
             string sqlDataSource = _configration.GetConnectionString("todoAppDBCon");
             using (SqlConnection myConn = new SqlConnection(sqlDataSource))
@@ -53,12 +58,17 @@ namespace todoAPI.Controllers
                     myCommand.Parameters.AddWithValue("@Date", reservation.Date.Date);
                     myCommand.Parameters.AddWithValue("@StartTime", reservation.StartTime);
                     myCommand.Parameters.AddWithValue("@EndTime", reservation.EndTime);
+                    myCommand.Parameters.AddWithValue("@ClientName", reservation.ClientName);
+                    myCommand.Parameters.AddWithValue("@PhoneNumber", reservation.PhoneNumber);
+                    myCommand.Parameters.AddWithValue("@Notes", reservation.Notes);
+                    myCommand.Parameters.AddWithValue("@MultiSportCard", reservation.MultiSportCard);
                     myCommand.ExecuteNonQuery();
                 }
                 myConn.Close();
             }
             return new JsonResult("Reservation Created Successfully");
         }
+
 
 
         [HttpGet]

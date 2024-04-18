@@ -95,7 +95,8 @@ const HomePage = ({
                             label="Karta Multisport"
                         />
 
-                        <Button className={styles.successBtt} onClick={() => confirmReservation(duration)}>Potwierdź</Button>
+                        <Button className={styles.successBtt} onClick={() => confirmReservation(clientName, phoneNumber, notes, multiSportCard, duration)}>Potwierdź</Button>
+
 
                         <Button className={styles.deleteBtt} onClick={handleCloseModal}>Anuluj</Button>
                     </div>

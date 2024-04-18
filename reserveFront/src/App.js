@@ -79,7 +79,7 @@ function App() {
     setSelectedReservation(null);
   };
 
-  const confirmReservation = async (duration) => {
+  const confirmReservation = async (clientName, phoneNumber, notes, multiSportCard, duration) => {
     const today = new Date();
     const startTime = new Date(`${format(today, 'yyyy-MM-dd')}T${selectedSlot.time}`);
     const endTime = new Date(startTime);
@@ -90,7 +90,11 @@ function App() {
       UserId: 1,
       Date: format(today, "yyyy-MM-dd"),
       StartTime: format(startTime, "HH:mm:ss"),
-      EndTime: format(endTime, "HH:mm:ss")
+      EndTime: format(endTime, "HH:mm:ss"),
+      ClientName: clientName,     
+      PhoneNumber: phoneNumber,   
+      Notes: notes,               
+      MultiSportCard: multiSportCard
     };
 
     try {
