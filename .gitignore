@@ -36,3 +36,21 @@ reserveAPP/.vs/ReserveAPP/v17/.suo
 *.cache
 reserveAPP/obj/Debug/net6.0/ReserveAPP.GeneratedMSBuildEditorConfig.editorconfig
 >>>>>>> a27685efe9d62a25e985bc872ed357d538b4d2c5
+reserveAPP/bin/Debug/net6.0/ReserveAPP.dll
+reserveAPP/bin/Debug/net6.0/ReserveAPP.pdb
+reserveAPP/obj/project.assets.json
+reserveAPP/obj/project.nuget.cache
+reserveAPP/obj/ReserveAPP.csproj.nuget.dgspec.json
+reserveAPP/obj/staticwebassets.pack.sentinel
+reserveAPP/obj/Debug/net6.0/ReserveAPP.assets.cache
+reserveAPP/obj/Debug/net6.0/ReserveAPP.csproj.AssemblyReference.cache
+reserveAPP/obj/Debug/net6.0/ReserveAPP.csproj.FileListAbsolute.txt
+reserveAPP/obj/Debug/net6.0/ReserveAPP.dll
+reserveAPP/obj/Debug/net6.0/ReserveAPP.GeneratedMSBuildEditorConfig.editorconfig
+reserveAPP/obj/Debug/net6.0/ReserveAPP.genruntimeconfig.cache
+reserveAPP/obj/Debug/net6.0/ReserveAPP.MvcApplicationPartsAssemblyInfo.cs
+reserveAPP/obj/Debug/net6.0/ReserveAPP.pdb
+reserveAPP/obj/Debug/net6.0/ref/ReserveAPP.dll
+reserveAPP/obj/Debug/net6.0/refint/ReserveAPP.dll
+reserveFront/package-lock.json
+reserveFront/package.json
