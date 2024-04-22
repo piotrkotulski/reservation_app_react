@@ -11,8 +11,21 @@ const filterReducer = (state, action) => {
             return { ...state, userId: action.userId };
         case 'SET_DATE':
             return { ...state, date: action.date };
+        // Add new cases for new columns
+        case 'SET_START_TIME':
+            return { ...state, startTime: action.startTime };
+        case 'SET_END_TIME':
+            return { ...state, endTime: action.endTime };
+        case 'SET_CLIENT_NAME':
+            return { ...state, clientName: action.clientName };
+        case 'SET_PHONE_NUMBER':
+            return { ...state, phoneNumber: action.phoneNumber };
+        case 'SET_NOTES':
+            return { ...state, notes: action.notes };
+        case 'SET_MULTISPORT_CARD':
+            return { ...state, multiSportCard: action.multiSportCard };
         case 'CLEAR':
-            return { courtId: '', userId: '', date: '' };
+            return { courtId: '', userId: '', date: '', startTime: '', endTime: '', clientName: '', phoneNumber: '', notes: '', multiSportCard: '' };
         default:
             return state;
     }
@@ -21,7 +34,7 @@ const filterReducer = (state, action) => {
 const Reservations = () => {
     const [reservations, setReservations] = useState([]);
     const [filteredReservations, setFilteredReservations] = useState([]);
-    const [filter, dispatch] = useReducer(filterReducer, { courtId: '', userId: '', date: '' });
+    const [filter, dispatch] = useReducer(filterReducer, { courtId: '', userId: '', date: '', startTime: '', endTime: '', clientName: '', phoneNumber: '', notes: '', multiSportCard: '' });
 
     useEffect(() => {
         const fetchReservations = async () => {
@@ -39,7 +52,7 @@ const Reservations = () => {
     }, []);
 
     const debounceFilterChange = debounce((name, value) => {
-        dispatch({ type: name.toUpperCase(), [name]: value });
+        dispatch({ type: `SET_${name.toUpperCase()}`, [name]: value });
         applyFilter({ ...filter, [name]: value });
     }, 500);
 
@@ -115,6 +128,10 @@ const Reservations = () => {
                             <TableCell>Data</TableCell>
                             <TableCell>Godzina Rozpoczęcia</TableCell>
                             <TableCell>Godzina Zakończenia</TableCell>
+                            <TableCell>Imię i nazwisko klienta</TableCell>
+                            <TableCell>Numer telefonu</TableCell>
+                            <TableCell>Notatki</TableCell>
+                            <TableCell>Karta MultiSport</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -126,6 +143,10 @@ const Reservations = () => {
                                 <TableCell>{new Date(reservation.Date).toLocaleDateString()}</TableCell>
                                 <TableCell>{reservation.StartTime}</TableCell>
                                 <TableCell>{reservation.EndTime}</TableCell>
+                                <TableCell>{reservation.ClientName}</TableCell>
+                                <TableCell>{reservation.PhoneNumber}</TableCell>
+                                <TableCell>{reservation.Notes}</TableCell>
+                                <TableCell>{reservation.MultiSportCard}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
