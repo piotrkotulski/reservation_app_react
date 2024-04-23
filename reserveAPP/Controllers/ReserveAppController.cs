@@ -18,6 +18,7 @@ namespace todoAPI.Controllers
 
         public class ReservationModel
         {
+            public int ReservationId { get; set; }
             public int CourtId { get; set; }
             public int UserId { get; set; }
             public DateTime Date { get; set; }
@@ -69,6 +70,45 @@ namespace todoAPI.Controllers
             return new JsonResult("Reservation Created Successfully");
         }
 
+        [HttpPut]
+        [Route("UpdateReservation")]
+        public JsonResult UpdateReservation([FromBody] ReservationModel reservation)
+        {
+            string query = @"
+                UPDATE dbo.Reservations
+                SET CourtId = @CourtId, 
+                    UserId = @UserId, 
+                    Date = @Date, 
+                    StartTime = @StartTime, 
+                    EndTime = @EndTime, 
+                    ClientName = @ClientName, 
+                    PhoneNumber = @PhoneNumber, 
+                    Notes = @Notes, 
+                    MultiSportCard = @MultiSportCard
+                WHERE ReservationId = @ReservationId";
+
+            string sqlDataSource = _configration.GetConnectionString("todoAppDBCon");
+            using (SqlConnection myConn = new SqlConnection(sqlDataSource))
+            {
+                myConn.Open();
+                using (SqlCommand myCommand = new SqlCommand(query, myConn))
+                {
+                    myCommand.Parameters.AddWithValue("@ReservationId", reservation.ReservationId);
+                    myCommand.Parameters.AddWithValue("@CourtId", reservation.CourtId);
+                    myCommand.Parameters.AddWithValue("@UserId", reservation.UserId);
+                    myCommand.Parameters.AddWithValue("@Date", reservation.Date.Date);
+                    myCommand.Parameters.AddWithValue("@StartTime", reservation.StartTime);
+                    myCommand.Parameters.AddWithValue("@EndTime", reservation.EndTime);
+                    myCommand.Parameters.AddWithValue("@ClientName", reservation.ClientName);
+                    myCommand.Parameters.AddWithValue("@PhoneNumber", reservation.PhoneNumber);
+                    myCommand.Parameters.AddWithValue("@Notes", reservation.Notes);
+                    myCommand.Parameters.AddWithValue("@MultiSportCard", reservation.MultiSportCard);
+
+                    int rowsAffected = myCommand.ExecuteNonQuery();
+                    return new JsonResult($"Updated {rowsAffected} records successfully.");
+                }
+            }
+        }
 
 
         [HttpGet]
