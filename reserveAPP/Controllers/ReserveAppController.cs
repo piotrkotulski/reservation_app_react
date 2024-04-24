@@ -40,6 +40,16 @@ namespace todoAPI.Controllers
             public string PhoneNumber { get; set; }
         }
 
+        public class CourtModel
+        {
+            public int CourtId { get; set; }
+            public string Type { get; set; } // np. Hala, Dywan, Mączka
+            public string Name { get; set; }
+            public bool IsActive { get; set; }
+            public bool IsFloodlit { get; set; } // Oświetlenie
+            public bool IsIndoor { get; set; } // Czy to jest hala
+        }
+
         [HttpPost]
         [Route("CreateReservation")]
         public JsonResult CreateReservation([FromBody] ReservationModel reservation)
@@ -181,7 +191,101 @@ VALUES (@FirstName, @LastName, @Email, @PhoneNumber)";
             return new JsonResult(table);
         }
 
+        [HttpPost]
+        [Route("AddCourt")]
+        public JsonResult AddCourt([FromBody] CourtModel court)
+        {
+            string query = @"
+                INSERT INTO dbo.Courts (Type, Name, IsActive, IsFloodlit, IsIndoor)
+                VALUES (@Type, @Name, @IsActive, @IsFloodlit, @IsIndoor)";
 
+            string sqlDataSource = _configration.GetConnectionString("todoAppDBCon");
+            using (SqlConnection myConn = new SqlConnection(sqlDataSource))
+            {
+                myConn.Open();
+                using (SqlCommand myCommand = new SqlCommand(query, myConn))
+                {
+                    myCommand.Parameters.AddWithValue("@Type", court.Type);
+                    myCommand.Parameters.AddWithValue("@Name", court.Name);
+                    myCommand.Parameters.AddWithValue("@IsActive", court.IsActive);
+                    myCommand.Parameters.AddWithValue("@IsFloodlit", court.IsFloodlit);
+                    myCommand.Parameters.AddWithValue("@IsIndoor", court.IsIndoor);
+                    myCommand.ExecuteNonQuery();
+                }
+                myConn.Close();
+            }
+            return new JsonResult("Court Added Successfully");
+        }
+
+
+        [HttpGet]
+        [Route("GetCourts")]
+        public JsonResult GetCourts()
+        {
+            string query = "SELECT * FROM dbo.Courts";
+            DataTable table = new DataTable();
+            string sqlDataSource = _configration.GetConnectionString("todoAppDBCon");
+            SqlDataReader myReader;
+            using (SqlConnection myConn = new SqlConnection(sqlDataSource))
+            {
+                myConn.Open();
+                using (SqlCommand myCommand = new SqlCommand(query, myConn))
+                {
+                    myReader = myCommand.ExecuteReader();
+                    table.Load(myReader);
+                    myReader.Close();
+                    myConn.Close();
+                }
+            }
+            return new JsonResult(table);
+        }
+
+        [HttpPut]
+        [Route("UpdateCourt")]
+        public JsonResult UpdateCourt([FromBody] CourtModel court)
+        {
+            string query = @"
+                UPDATE dbo.Courts
+                SET Type = @Type, Name = @Name, IsActive = @IsActive, IsFloodlit = @IsFloodlit, IsIndoor = @IsIndoor
+                WHERE CourtId = @CourtId";
+
+            string sqlDataSource = _configration.GetConnectionString("todoAppDBCon");
+            using (SqlConnection myConn = new SqlConnection(sqlDataSource))
+            {
+                myConn.Open();
+                using (SqlCommand myCommand = new SqlCommand(query, myConn))
+                {
+                    myCommand.Parameters.AddWithValue("@CourtId", court.CourtId);
+                    myCommand.Parameters.AddWithValue("@Type", court.Type);
+                    myCommand.Parameters.AddWithValue("@Name", court.Name);
+                    myCommand.Parameters.AddWithValue("@IsActive", court.IsActive);
+                    myCommand.Parameters.AddWithValue("@IsFloodlit", court.IsFloodlit);
+                    myCommand.Parameters.AddWithValue("@IsIndoor", court.IsIndoor);
+                    myCommand.ExecuteNonQuery();
+                }
+                myConn.Close();
+            }
+            return new JsonResult("Court Updated Successfully");
+        }
+
+        [HttpDelete]
+        [Route("DeleteCourt/{id}")]
+        public JsonResult DeleteCourt(int id)
+        {
+            string query = "DELETE FROM dbo.Courts WHERE CourtId = @CourtId";
+            string sqlDataSource = _configration.GetConnectionString("todoAppDBCon");
+            using (SqlConnection myConn = new SqlConnection(sqlDataSource))
+            {
+                myConn.Open();
+                using (SqlCommand myCommand = new SqlCommand(query, myConn))
+                {
+                    myCommand.Parameters.AddWithValue("@CourtId", id);
+                    myCommand.ExecuteNonQuery();
+                }
+                myConn.Close();
+            }
+            return new JsonResult("Court Deleted Successfully");
+        }
 
     }
 }
