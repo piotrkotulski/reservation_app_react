@@ -22,6 +22,7 @@ function App() {
   const [openingHour, setOpeningHour] = useState(8);
   const [closingHour, setClosingHour] = useState(22);
 
+
   useEffect(() => {
     fetchReservations();
   }, []);
@@ -43,6 +44,8 @@ function App() {
   for (let i = 1; i <= numCourts; i++) {
     courtHeaders.push(<th key={`court-${i}`}>Kort {i}</th>);
   }
+
+ 
 
   const fetchReservations = async () => {
     try {
@@ -218,7 +221,7 @@ function App() {
           <div className="App">
             <NavigationBar />
             <Routes>
-              <Route path="/" element={<HomePage numCourts={numCourts} setNumCourts={setNumCourts} courtHeaders={courtHeaders} timeSlots={timeSlots} selectedSlot={selectedSlot} selectedReservation={selectedReservation} confirmReservation={confirmReservation} handleCloseModal={handleCloseModal} confirmDelete={confirmDelete} />} />
+              <Route path="/" element={<HomePage API_URL={API_URL} numCourts={numCourts} setNumCourts={setNumCourts} courtHeaders={courtHeaders} timeSlots={timeSlots} selectedSlot={selectedSlot} selectedReservation={selectedReservation} confirmReservation={confirmReservation} handleCloseModal={handleCloseModal} confirmDelete={confirmDelete} />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/reservations" element={<Reservations />} />
               <Route path="/users" element={<Users />} />

@@ -9,7 +9,9 @@ import TextField from '@mui/material/TextField';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
-const HomePage = ({
+
+
+const HomePage = ({   API_URL,
                       courtHeaders,
                       timeSlots,
                       selectedSlot,
@@ -24,6 +26,36 @@ const HomePage = ({
     const [phoneNumber, setPhoneNumber] = useState('');
     const [notes, setNotes] = useState('');
     const [trainer, setTrainer] = useState('');
+    const [userData, setUserData] = useState({});
+    const [userList, setUserList] = useState([]);
+
+
+
+    const handleNameChange = async (event) => {
+        const name = event.target.value;
+        setClientName(name);
+    
+        if (name.length >= 3) {
+            try {
+                const response = await fetch(`${API_URL}api/ReserveApp/SearchUsers?searchTerm=${name}`);
+                const users = await response.json();
+                setUserList(users); // Tutaj przychodzi lista użytkowników
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+                setUserList([]); // W razie błędu czyścimy listę
+            }
+        } else {
+            setUserList([]); // Wyczyść listę, jeśli jest mniej niż 3 znaki
+        }
+    };
+
+    const handleUserSelect = (user) => {
+    // Uzupełnij pola danymi wybranego użytkownika
+    setClientName(`${user.FirstName} ${user.LastName}`);
+    setPhoneNumber(user.PhoneNumber);
+    setUserData(user);
+    setUserList([]); // Wyczyść listę po wyborze
+    };
 
     return (
         <div>
@@ -63,10 +95,24 @@ const HomePage = ({
                         <TextField
                             label="Imię i nazwisko"
                             value={clientName}
-                            onChange={(e) => setClientName(e.target.value)}
+                            onChange={handleNameChange}
                             fullWidth
                             margin="normal"
+                            autoComplete="off" // Wyłącz autouzupełnianie
                         />
+                        {userList.length > 0 && (
+                            <ul className={styles.userList}>
+                            {userList.map((user) => (
+                                <li
+                                key={user.UserId}
+                                onClick={() => handleUserSelect(user)}
+                                className={styles.userListItem}
+                                >
+                                {`${user.FirstName} ${user.LastName}`}
+                                </li>
+                            ))}
+                            </ul>
+                        )}
 
                         <TextField
                             label="Telefon"

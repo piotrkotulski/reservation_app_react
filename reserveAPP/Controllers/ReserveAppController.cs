@@ -287,5 +287,34 @@ VALUES (@FirstName, @LastName, @Email, @PhoneNumber)";
             return new JsonResult("Court Deleted Successfully");
         }
 
+        [HttpGet]
+        [Route("SearchUsers")]
+        public JsonResult SearchUsers(string searchTerm)
+        {
+            string query = @"
+                SELECT UserId, FirstName, LastName, Email, PhoneNumber 
+                FROM dbo.Users 
+                WHERE FirstName LIKE @SearchTerm + '%' OR LastName LIKE @SearchTerm + '%'";
+
+
+            DataTable table = new DataTable();
+            string sqlDataSource = _configration.GetConnectionString("todoAppDBCon");
+            SqlDataReader myReader;
+            using (SqlConnection myConn = new SqlConnection(sqlDataSource))
+            {
+                myConn.Open();
+                using (SqlCommand myCommand = new SqlCommand(query, myConn))
+                {
+                    myCommand.Parameters.AddWithValue("@SearchTerm", searchTerm);
+                    myReader = myCommand.ExecuteReader();
+                    table.Load(myReader);
+                    myReader.Close();
+                }
+                myConn.Close();
+            }
+            return new JsonResult(table);
+        }
+
+
     }
 }
