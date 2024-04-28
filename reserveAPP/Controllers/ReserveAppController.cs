@@ -169,6 +169,41 @@ VALUES (@FirstName, @LastName, @Email, @PhoneNumber)";
             return new JsonResult("User Created Successfully");
         }
 
+        [HttpPut]
+        [Route("UpdateUser/{userId}")]
+        public JsonResult UpdateUser(int userId, [FromBody] UserModel user)
+        {
+            string query = @"
+                UPDATE dbo.Users
+                SET FirstName = @FirstName, LastName = @LastName, Email = @Email, PhoneNumber = @PhoneNumber
+                WHERE UserId = @UserId";
+
+            string sqlDataSource = _configration.GetConnectionString("todoAppDBCon");
+            using (SqlConnection myConn = new SqlConnection(sqlDataSource))
+            {
+                myConn.Open();
+                using (SqlCommand myCommand = new SqlCommand(query, myConn))
+                {
+                    myCommand.Parameters.AddWithValue("@UserId", userId);
+                    myCommand.Parameters.AddWithValue("@FirstName", user.FirstName);
+                    myCommand.Parameters.AddWithValue("@LastName", user.LastName);
+                    myCommand.Parameters.AddWithValue("@Email", user.Email);
+                    myCommand.Parameters.AddWithValue("@PhoneNumber", user.PhoneNumber);
+
+                    int rowsAffected = myCommand.ExecuteNonQuery();
+                    if (rowsAffected > 0)
+                    {
+                        return new JsonResult("User Updated Successfully");
+                    }
+                    else
+                    {
+                        return new JsonResult("No User Found with the given ID");
+                    }
+                }
+            }
+        }
+
+
         [HttpGet]
         [Route("GetUsers")]
         public JsonResult GetUsers()
@@ -190,6 +225,64 @@ VALUES (@FirstName, @LastName, @Email, @PhoneNumber)";
             }
             return new JsonResult(table);
         }
+
+        [HttpGet]
+        [Route("GetUser/{userId}")]
+        public JsonResult GetUser(int userId)
+        {
+            string query = "SELECT UserId, FirstName, LastName, Email, PhoneNumber FROM dbo.Users WHERE UserId = @UserId";
+            DataTable table = new DataTable();
+            string sqlDataSource = _configration.GetConnectionString("todoAppDBCon");
+            SqlDataReader myReader;
+            using (SqlConnection myConn = new SqlConnection(sqlDataSource))
+            {
+                myConn.Open();
+                using (SqlCommand myCommand = new SqlCommand(query, myConn))
+                {
+                    myCommand.Parameters.AddWithValue("@UserId", userId);
+                    myReader = myCommand.ExecuteReader();
+                    table.Load(myReader);
+                    myReader.Close();
+                    myConn.Close();
+                }
+            }
+            if (table.Rows.Count > 0)
+            {
+                return new JsonResult(table.Rows[0]);
+            }
+            else
+            {
+                return new JsonResult("User not found");
+            }
+        }
+
+        [HttpDelete]
+        [Route("DeleteUser/{userId}")]
+        public ActionResult DeleteUser(int userId)
+        {
+            string query = "DELETE FROM dbo.Users WHERE UserId = @UserId";
+            string sqlDataSource = _configration.GetConnectionString("todoAppDBCon");
+            using (SqlConnection myConn = new SqlConnection(sqlDataSource))
+            {
+                myConn.Open();
+                using (SqlCommand myCommand = new SqlCommand(query, myConn))
+                {
+                    myCommand.Parameters.AddWithValue("@UserId", userId);
+                    int rowsAffected = myCommand.ExecuteNonQuery();
+                    myConn.Close();
+
+                    if (rowsAffected > 0)
+                    {
+                        return Ok($"User with ID {userId} deleted successfully.");
+                    }
+                    else
+                    {
+                        return NotFound($"User with ID {userId} not found.");
+                    }
+                }
+            }
+        }
+
 
         [HttpPost]
         [Route("AddCourt")]

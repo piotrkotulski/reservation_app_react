@@ -129,7 +129,7 @@ export default function MiniDrawer() {
                         <MenuIcon />
                     </IconButton>
                     <Typography variant="h6" noWrap component="div">
-                        Your App Name
+                        KortyOnline
                     </Typography>
                 </Toolbar>
             </AppBar>
