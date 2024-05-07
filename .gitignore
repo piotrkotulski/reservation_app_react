@@ -72,3 +72,6 @@ reserveAPP/obj/Debug/net6.0/ref/ReserveAPP.dll
 reserveAPP/obj/Debug/net6.0/refint/ReserveAPP.dll
 reserveFront/package-lock.json
 reserveFront/package.json
+reserveAPP/obj/Debug/net6.0/ReserveAPP.assets.cache
+reserveAPP/obj/Debug/net6.0/ReserveAPP.csproj.AssemblyReference.cache
+reserveAPP/obj/Debug/net6.0/ReserveAPP.GeneratedMSBuildEditorConfig.editorconfig
