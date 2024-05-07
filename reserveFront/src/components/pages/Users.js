@@ -77,29 +77,42 @@ const Users = () => {
     };
 
     const handleAddOrUpdateUser = async () => {
+        if (!currentUser.firstName || !currentUser.lastName || !currentUser.email || !currentUser.phoneNumber) {
+            toast.error("Proszę uzupełnić wszystkie pola!");
+            return;
+        }
+    
         const url = currentUser.userId
             ? `http://localhost:5160/api/ReserveApp/UpdateUser/${currentUser.userId}`
             : 'http://localhost:5160/api/ReserveApp/CreateUser';
         const method = currentUser.userId ? 'PUT' : 'POST';
     
+        const body = { ...currentUser };
+        if (!body.userId) {
+            delete body.userId; // Usuwamy klucz userId, gdy dodajemy nowego użytkownika
+        }
+    
         try {
             const response = await fetch(url, {
                 method: method,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(currentUser)
+                body: JSON.stringify(body)
             });
             if (response.ok) {
-                toast.success(`User ${currentUser.userId ? 'updated' : 'added'} successfully`);
+                toast.success(`Użytkownik ${currentUser.userId ? 'zaktualizowany' : 'dodany'} pomyślnie`);
                 fetchUsers();  // Odświeżanie listy użytkowników
                 handleClose();
             } else {
-                toast.error(`Failed to ${currentUser.userId ? 'update' : 'add'} user`);
+                const errorData = await response.json();
+                toast.error(`Nie udało się ${currentUser.userId ? 'zaktualizować' : 'dodać'} użytkownika: ${errorData.message}`);
             }
         } catch (error) {
             console.error('Error:', error);
-            toast.error('Error with the add/update operation');
+            toast.error('Wystąpił błąd podczas operacji dodawania/aktualizacji');
         }
     };
+    
+    
     
     
 
@@ -108,11 +121,11 @@ const Users = () => {
             method: 'DELETE'
         });
         if (response.ok) {
-            toast.success('User deleted successfully');
+            toast.success('Użytkownik usunięty pomyślnie');
             fetchUsers();  // Ponowne ładowanie listy użytkowników
             handleClose();
         } else {
-            toast.error('Failed to delete user');
+            toast.error('Błąd w usuwaniu użytkownika');
         }
     };
     
@@ -120,7 +133,7 @@ const Users = () => {
 
     return (
         <Container className="mt-5">
-            <ToastContainer />
+            <ToastContainer position="top-right" autoClose={1000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
             <h1>Użytkownicy</h1>
             <Button variant="contained" color="primary" onClick={() => handleOpen(null)}>Dodaj Użytkownika</Button>
             <TableContainer component={Paper} className="mt-4">

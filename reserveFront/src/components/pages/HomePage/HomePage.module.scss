@@ -1,6 +1,6 @@
 @import "../../../styles/settings";
 
-/* Tutaj możesz dodać style dla modala rezerwacji */
+
 .modal {
   position: fixed;
   z-index: 1;
@@ -20,7 +20,7 @@
   padding: 20px;
   border: 1px solid #888;
   width: 80%;
-  max-width: 600px; /* Aby nie była zbyt szeroka na dużych ekranach */
+  max-width: 600px; 
   border-radius: 10px;
 
   .successBtt {
@@ -89,7 +89,7 @@
   max-height: 200px;
   overflow-y: auto;
   width: 100%;
-  z-index: 100; // Aby lista była na wierzchu
+  z-index: 100; 
 
   .userListItem {
     padding: 10px;

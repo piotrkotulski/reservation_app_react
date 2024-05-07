@@ -43,11 +43,11 @@ namespace todoAPI.Controllers
         public class CourtModel
         {
             public int CourtId { get; set; }
-            public string Type { get; set; } // np. Hala, Dywan, Mączka
+            public string Type { get; set; } 
             public string Name { get; set; }
             public bool IsActive { get; set; }
-            public bool IsFloodlit { get; set; } // Oświetlenie
-            public bool IsIndoor { get; set; } // Czy to jest hala
+            public bool IsFloodlit { get; set; }
+            public bool IsIndoor { get; set; } 
         }
 
         [HttpPost]
