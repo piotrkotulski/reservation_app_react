@@ -2,253 +2,84 @@
 using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
+using reserveAPP.Models;
+using reserveAPP.Services;
 
-namespace todoAPI.Controllers
+
+namespace reserveAPP.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class ReserveAppController : ControllerBase
     {
-        private IConfiguration _configration;
+        private readonly ReservationService _reservationService;
+        private readonly UserService _userService;
+        private readonly CourtService _courtService;
 
         public ReserveAppController(IConfiguration configuration)
         {
-            _configration = configuration;
-        }
-
-        public class ReservationModel
-        {
-            public int ReservationId { get; set; }
-            public int CourtId { get; set; }
-            public int UserId { get; set; }
-            public DateTime Date { get; set; }
-            public TimeSpan StartTime { get; set; }
-            public TimeSpan EndTime { get; set; }
-            public string ClientName { get; set; } 
-            public string PhoneNumber { get; set; }
-            public string Notes { get; set; } 
-            public bool MultiSportCard { get; set; } 
-        }
-
-
-        public class UserModel
-        {
-            public int UserId { get; set; } 
-            public string FirstName { get; set; }
-            public string LastName { get; set; }
-            public string Email { get; set; }
-            public string PhoneNumber { get; set; }
-        }
-
-        public class CourtModel
-        {
-            public int CourtId { get; set; }
-            public string Type { get; set; } 
-            public string Name { get; set; }
-            public bool IsActive { get; set; }
-            public bool IsFloodlit { get; set; }
-            public bool IsIndoor { get; set; } 
+            string connectionString = configuration.GetConnectionString("reserveAppDbConn");
+            _reservationService = new ReservationService(connectionString);
+            _userService = new UserService(connectionString);
+            _courtService = new CourtService(connectionString);
         }
 
         [HttpPost]
         [Route("CreateReservation")]
-        public JsonResult CreateReservation([FromBody] ReservationModel reservation)
+        public IActionResult CreateReservation([FromBody] ReservationModel reservation)
         {
-            string query = @"
-        INSERT INTO dbo.Reservations (CourtId, UserId, Date, StartTime, EndTime, ClientName, PhoneNumber, Notes, MultiSportCard)
-        VALUES (@CourtId, @UserId, @Date, @StartTime, @EndTime, @ClientName, @PhoneNumber, @Notes, @MultiSportCard)";
-
-            string sqlDataSource = _configration.GetConnectionString("todoAppDBCon");
-            using (SqlConnection myConn = new SqlConnection(sqlDataSource))
-            {
-                myConn.Open();
-                using (SqlCommand myCommand = new SqlCommand(query, myConn))
-                {
-                    myCommand.Parameters.AddWithValue("@CourtId", reservation.CourtId);
-                    myCommand.Parameters.AddWithValue("@UserId", reservation.UserId);
-                    myCommand.Parameters.AddWithValue("@Date", reservation.Date.Date);
-                    myCommand.Parameters.AddWithValue("@StartTime", reservation.StartTime);
-                    myCommand.Parameters.AddWithValue("@EndTime", reservation.EndTime);
-                    myCommand.Parameters.AddWithValue("@ClientName", reservation.ClientName);
-                    myCommand.Parameters.AddWithValue("@PhoneNumber", reservation.PhoneNumber);
-                    myCommand.Parameters.AddWithValue("@Notes", reservation.Notes);
-                    myCommand.Parameters.AddWithValue("@MultiSportCard", reservation.MultiSportCard);
-                    myCommand.ExecuteNonQuery();
-                }
-                myConn.Close();
-            }
+            _reservationService.CreateReservation(reservation);
             return new JsonResult("Reservation Created Successfully");
         }
 
         [HttpPut]
         [Route("UpdateReservation")]
-        public JsonResult UpdateReservation([FromBody] ReservationModel reservation)
+        public IActionResult UpdateReservation([FromBody] ReservationModel reservation)
         {
-            string query = @"
-                UPDATE dbo.Reservations
-                SET CourtId = @CourtId, 
-                    UserId = @UserId, 
-                    Date = @Date, 
-                    StartTime = @StartTime, 
-                    EndTime = @EndTime, 
-                    ClientName = @ClientName, 
-                    PhoneNumber = @PhoneNumber, 
-                    Notes = @Notes, 
-                    MultiSportCard = @MultiSportCard
-                WHERE ReservationId = @ReservationId";
-
-            string sqlDataSource = _configration.GetConnectionString("todoAppDBCon");
-            using (SqlConnection myConn = new SqlConnection(sqlDataSource))
-            {
-                myConn.Open();
-                using (SqlCommand myCommand = new SqlCommand(query, myConn))
-                {
-                    myCommand.Parameters.AddWithValue("@ReservationId", reservation.ReservationId);
-                    myCommand.Parameters.AddWithValue("@CourtId", reservation.CourtId);
-                    myCommand.Parameters.AddWithValue("@UserId", reservation.UserId);
-                    myCommand.Parameters.AddWithValue("@Date", reservation.Date.Date);
-                    myCommand.Parameters.AddWithValue("@StartTime", reservation.StartTime);
-                    myCommand.Parameters.AddWithValue("@EndTime", reservation.EndTime);
-                    myCommand.Parameters.AddWithValue("@ClientName", reservation.ClientName);
-                    myCommand.Parameters.AddWithValue("@PhoneNumber", reservation.PhoneNumber);
-                    myCommand.Parameters.AddWithValue("@Notes", reservation.Notes);
-                    myCommand.Parameters.AddWithValue("@MultiSportCard", reservation.MultiSportCard);
-
-                    int rowsAffected = myCommand.ExecuteNonQuery();
-                    return new JsonResult($"Updated {rowsAffected} records successfully.");
-                }
-            }
+            _reservationService.UpdateReservation(reservation);
+            return new JsonResult("Reservation Updated Successfully");
         }
-
 
         [HttpGet]
         [Route("GetReservations")]
-        public JsonResult GetReservations()
+        public IActionResult GetReservations()
         {
-            string query = "SELECT * FROM dbo.Reservations";
-            DataTable table = new DataTable();
-            string sqlDataSource = _configration.GetConnectionString("todoAppDBCon");
-            SqlDataReader myReader;
-            using (SqlConnection myConn = new SqlConnection(sqlDataSource))
-            {
-                myConn.Open();
-                using (SqlCommand myCommand = new SqlCommand(query, myConn))
-                {
-                    myReader = myCommand.ExecuteReader();
-                    table.Load(myReader);
-                    myReader.Close();
-                    myConn.Close();
-                }
-            }
-            return new JsonResult(table);
+            DataTable reservations = _reservationService.GetReservations();
+            return new JsonResult(reservations);
         }
-
 
         [HttpPost]
         [Route("CreateUser")]
-        public JsonResult CreateUser([FromBody] UserModel user)
+        public IActionResult CreateUser([FromBody] UserModel user)
         {
-            string query = @"
-INSERT INTO dbo.Users (FirstName, LastName, Email, PhoneNumber)
-VALUES (@FirstName, @LastName, @Email, @PhoneNumber)";
-
-            string sqlDataSource = _configration.GetConnectionString("todoAppDBCon");
-            using (SqlConnection myConn = new SqlConnection(sqlDataSource))
-            {
-                myConn.Open();
-                using (SqlCommand myCommand = new SqlCommand(query, myConn))
-                {
-                    myCommand.Parameters.AddWithValue("@FirstName", user.FirstName);
-                    myCommand.Parameters.AddWithValue("@LastName", user.LastName);
-                    myCommand.Parameters.AddWithValue("@Email", user.Email);
-                    myCommand.Parameters.AddWithValue("@PhoneNumber", user.PhoneNumber);
-                    myCommand.ExecuteNonQuery();
-                }
-                myConn.Close();
-            }
+            _userService.CreateUser(user);
             return new JsonResult("User Created Successfully");
         }
 
         [HttpPut]
         [Route("UpdateUser/{userId}")]
-        public JsonResult UpdateUser(int userId, [FromBody] UserModel user)
+        public IActionResult UpdateUser(int userId, [FromBody] UserModel user)
         {
-            string query = @"
-                UPDATE dbo.Users
-                SET FirstName = @FirstName, LastName = @LastName, Email = @Email, PhoneNumber = @PhoneNumber
-                WHERE UserId = @UserId";
-
-            string sqlDataSource = _configration.GetConnectionString("todoAppDBCon");
-            using (SqlConnection myConn = new SqlConnection(sqlDataSource))
-            {
-                myConn.Open();
-                using (SqlCommand myCommand = new SqlCommand(query, myConn))
-                {
-                    myCommand.Parameters.AddWithValue("@UserId", userId);
-                    myCommand.Parameters.AddWithValue("@FirstName", user.FirstName);
-                    myCommand.Parameters.AddWithValue("@LastName", user.LastName);
-                    myCommand.Parameters.AddWithValue("@Email", user.Email);
-                    myCommand.Parameters.AddWithValue("@PhoneNumber", user.PhoneNumber);
-
-                    int rowsAffected = myCommand.ExecuteNonQuery();
-                    if (rowsAffected > 0)
-                    {
-                        return new JsonResult("User Updated Successfully");
-                    }
-                    else
-                    {
-                        return new JsonResult("No User Found with the given ID");
-                    }
-                }
-            }
+            _userService.UpdateUser(userId, user);
+            return new JsonResult("User Updated Successfully");
         }
-
 
         [HttpGet]
         [Route("GetUsers")]
-        public JsonResult GetUsers()
+        public IActionResult GetUsers()
         {
-            string query = "SELECT UserId, FirstName, LastName, Email, PhoneNumber FROM dbo.Users";
-            DataTable table = new DataTable();
-            string sqlDataSource = _configration.GetConnectionString("todoAppDBCon");
-            SqlDataReader myReader;
-            using (SqlConnection myConn = new SqlConnection(sqlDataSource))
-            {
-                myConn.Open();
-                using (SqlCommand myCommand = new SqlCommand(query, myConn))
-                {
-                    myReader = myCommand.ExecuteReader();
-                    table.Load(myReader);
-                    myReader.Close();
-                    myConn.Close();
-                }
-            }
-            return new JsonResult(table);
+            DataTable users = _userService.GetUsers();
+            return new JsonResult(users);
         }
 
         [HttpGet]
         [Route("GetUser/{userId}")]
-        public JsonResult GetUser(int userId)
+        public IActionResult GetUser(int userId)
         {
-            string query = "SELECT UserId, FirstName, LastName, Email, PhoneNumber FROM dbo.Users WHERE UserId = @UserId";
-            DataTable table = new DataTable();
-            string sqlDataSource = _configration.GetConnectionString("todoAppDBCon");
-            SqlDataReader myReader;
-            using (SqlConnection myConn = new SqlConnection(sqlDataSource))
+            DataTable user = _userService.GetUser(userId);
+            if (user.Rows.Count > 0)
             {
-                myConn.Open();
-                using (SqlCommand myCommand = new SqlCommand(query, myConn))
-                {
-                    myCommand.Parameters.AddWithValue("@UserId", userId);
-                    myReader = myCommand.ExecuteReader();
-                    table.Load(myReader);
-                    myReader.Close();
-                    myConn.Close();
-                }
-            }
-            if (table.Rows.Count > 0)
-            {
-                return new JsonResult(table.Rows[0]);
+                return new JsonResult(user.Rows[0]);
             }
             else
             {
@@ -258,156 +89,42 @@ VALUES (@FirstName, @LastName, @Email, @PhoneNumber)";
 
         [HttpDelete]
         [Route("DeleteUser/{userId}")]
-        public ActionResult DeleteUser(int userId)
+        public IActionResult DeleteUser(int userId)
         {
-            string query = "DELETE FROM dbo.Users WHERE UserId = @UserId";
-            string sqlDataSource = _configration.GetConnectionString("todoAppDBCon");
-            using (SqlConnection myConn = new SqlConnection(sqlDataSource))
-            {
-                myConn.Open();
-                using (SqlCommand myCommand = new SqlCommand(query, myConn))
-                {
-                    myCommand.Parameters.AddWithValue("@UserId", userId);
-                    int rowsAffected = myCommand.ExecuteNonQuery();
-                    myConn.Close();
-
-                    if (rowsAffected > 0)
-                    {
-                        return Ok($"User with ID {userId} deleted successfully.");
-                    }
-                    else
-                    {
-                        return NotFound($"User with ID {userId} not found.");
-                    }
-                }
-            }
+            _userService.DeleteUser(userId);
+            return new JsonResult("User Deleted Successfully");
         }
-
 
         [HttpPost]
         [Route("AddCourt")]
-        public JsonResult AddCourt([FromBody] CourtModel court)
+        public IActionResult AddCourt([FromBody] CourtModel court)
         {
-            string query = @"
-                INSERT INTO dbo.Courts (Type, Name, IsActive, IsFloodlit, IsIndoor)
-                VALUES (@Type, @Name, @IsActive, @IsFloodlit, @IsIndoor)";
-
-            string sqlDataSource = _configration.GetConnectionString("todoAppDBCon");
-            using (SqlConnection myConn = new SqlConnection(sqlDataSource))
-            {
-                myConn.Open();
-                using (SqlCommand myCommand = new SqlCommand(query, myConn))
-                {
-                    myCommand.Parameters.AddWithValue("@Type", court.Type);
-                    myCommand.Parameters.AddWithValue("@Name", court.Name);
-                    myCommand.Parameters.AddWithValue("@IsActive", court.IsActive);
-                    myCommand.Parameters.AddWithValue("@IsFloodlit", court.IsFloodlit);
-                    myCommand.Parameters.AddWithValue("@IsIndoor", court.IsIndoor);
-                    myCommand.ExecuteNonQuery();
-                }
-                myConn.Close();
-            }
+            _courtService.AddCourt(court);
             return new JsonResult("Court Added Successfully");
-        }
-
-
-        [HttpGet]
-        [Route("GetCourts")]
-        public JsonResult GetCourts()
-        {
-            string query = "SELECT * FROM dbo.Courts";
-            DataTable table = new DataTable();
-            string sqlDataSource = _configration.GetConnectionString("todoAppDBCon");
-            SqlDataReader myReader;
-            using (SqlConnection myConn = new SqlConnection(sqlDataSource))
-            {
-                myConn.Open();
-                using (SqlCommand myCommand = new SqlCommand(query, myConn))
-                {
-                    myReader = myCommand.ExecuteReader();
-                    table.Load(myReader);
-                    myReader.Close();
-                    myConn.Close();
-                }
-            }
-            return new JsonResult(table);
         }
 
         [HttpPut]
         [Route("UpdateCourt")]
-        public JsonResult UpdateCourt([FromBody] CourtModel court)
+        public IActionResult UpdateCourt([FromBody] CourtModel court)
         {
-            string query = @"
-                UPDATE dbo.Courts
-                SET Type = @Type, Name = @Name, IsActive = @IsActive, IsFloodlit = @IsFloodlit, IsIndoor = @IsIndoor
-                WHERE CourtId = @CourtId";
-
-            string sqlDataSource = _configration.GetConnectionString("todoAppDBCon");
-            using (SqlConnection myConn = new SqlConnection(sqlDataSource))
-            {
-                myConn.Open();
-                using (SqlCommand myCommand = new SqlCommand(query, myConn))
-                {
-                    myCommand.Parameters.AddWithValue("@CourtId", court.CourtId);
-                    myCommand.Parameters.AddWithValue("@Type", court.Type);
-                    myCommand.Parameters.AddWithValue("@Name", court.Name);
-                    myCommand.Parameters.AddWithValue("@IsActive", court.IsActive);
-                    myCommand.Parameters.AddWithValue("@IsFloodlit", court.IsFloodlit);
-                    myCommand.Parameters.AddWithValue("@IsIndoor", court.IsIndoor);
-                    myCommand.ExecuteNonQuery();
-                }
-                myConn.Close();
-            }
+            _courtService.UpdateCourt(court);
             return new JsonResult("Court Updated Successfully");
+        }
+
+        [HttpGet]
+        [Route("GetCourts")]
+        public IActionResult GetCourts()
+        {
+            DataTable courts = _courtService.GetCourts();
+            return new JsonResult(courts);
         }
 
         [HttpDelete]
         [Route("DeleteCourt/{id}")]
-        public JsonResult DeleteCourt(int id)
+        public IActionResult DeleteCourt(int id)
         {
-            string query = "DELETE FROM dbo.Courts WHERE CourtId = @CourtId";
-            string sqlDataSource = _configration.GetConnectionString("todoAppDBCon");
-            using (SqlConnection myConn = new SqlConnection(sqlDataSource))
-            {
-                myConn.Open();
-                using (SqlCommand myCommand = new SqlCommand(query, myConn))
-                {
-                    myCommand.Parameters.AddWithValue("@CourtId", id);
-                    myCommand.ExecuteNonQuery();
-                }
-                myConn.Close();
-            }
+            _courtService.DeleteCourt(id);
             return new JsonResult("Court Deleted Successfully");
         }
-
-        [HttpGet]
-        [Route("SearchUsers")]
-        public JsonResult SearchUsers(string searchTerm)
-        {
-            string query = @"
-                SELECT UserId, FirstName, LastName, Email, PhoneNumber 
-                FROM dbo.Users 
-                WHERE FirstName LIKE @SearchTerm + '%' OR LastName LIKE @SearchTerm + '%'";
-
-
-            DataTable table = new DataTable();
-            string sqlDataSource = _configration.GetConnectionString("todoAppDBCon");
-            SqlDataReader myReader;
-            using (SqlConnection myConn = new SqlConnection(sqlDataSource))
-            {
-                myConn.Open();
-                using (SqlCommand myCommand = new SqlCommand(query, myConn))
-                {
-                    myCommand.Parameters.AddWithValue("@SearchTerm", searchTerm);
-                    myReader = myCommand.ExecuteReader();
-                    table.Load(myReader);
-                    myReader.Close();
-                }
-                myConn.Close();
-            }
-            return new JsonResult(table);
-        }
-
-
     }
 }

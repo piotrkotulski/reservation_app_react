@@ -1,0 +1,110 @@
+### Definiowanie zmiennej URL
+@url = http://localhost:5160
+
+### Żądania dotyczące rezerwacji
+
+### Pobranie wszystkich rezerwacji
+GET {{url}}/api/ReserveApp/GetReservations
+
+### Utworzenie nowej rezerwacji
+POST {{url}}/api/ReserveApp/CreateReservation
+Content-Type: application/json
+
+{
+  "courtId": 1,
+  "userId": 1,
+  "date": "2024-05-20T00:00:00",
+  "startTime": "10:00:00",
+  "endTime": "11:00:00",
+  "clientName": "John Doe",
+  "phoneNumber": "123456789",
+  "notes": "Sample note",
+  "multiSportCard": true
+}
+
+### Aktualizacja istniejącej rezerwacji
+PUT {{url}}/api/ReserveApp/UpdateReservation
+Content-Type: application/json
+
+{
+  "reservationId": 1,
+  "courtId": 2,
+  "userId": 2,
+  "date": "2024-05-21T00:00:00",
+  "startTime": "12:00:00",
+  "endTime": "13:00:00",
+  "clientName": "Jane Doe",
+  "phoneNumber": "987654321",
+  "notes": "Updated note",
+  "multiSportCard": false
+}
+
+### Żądania dotyczące użytkowników
+
+### Utworzenie nowego użytkownika
+POST {{url}}/api/ReserveApp/CreateUser
+Content-Type: application/json
+
+{
+  "firstName": "Alice",
+  "lastName": "Smith",
+  "email": "alice.smith@example.com",
+  "phoneNumber": "555123456"
+}
+
+### Aktualizacja istniejącego użytkownika
+PUT {{url}}/api/ReserveApp/UpdateUser/1
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "firstName": "Alice",
+  "lastName": "Johnson",
+  "email": "alice.johnson@example.com",
+  "phoneNumber": "555654321"
+}
+
+### Pobranie wszystkich użytkowników
+GET {{url}}/api/ReserveApp/GetUsers
+
+### Pobranie konkretnego użytkownika
+GET {{url}}/api/ReserveApp/GetUser/1
+
+### Usunięcie użytkownika
+DELETE {{url}}/api/ReserveApp/DeleteUser/1
+
+### Szukanie użytkowników
+GET {{url}}/api/ReserveApp/SearchUsers?searchTerm=John
+
+### Żądania dotyczące kortów
+
+### Dodanie nowego kortu
+POST {{url}}/api/ReserveApp/AddCourt
+Content-Type: application/json
+
+{
+  "type": "Tennis",
+  "name": "Court 1",
+  "isActive": true,
+  "isFloodlit": false,
+  "isIndoor": true
+}
+
+### Aktualizacja istniejącego kortu
+PUT {{url}}/api/ReserveApp/UpdateCourt
+Content-Type: application/json
+
+{
+  "courtId": 1,
+  "type": "Tennis",
+  "name": "Updated Court 1",
+  "isActive": false,
+  "isFloodlit": true,
+  "isIndoor": false
+}
+
+### Pobranie wszystkich kortów
+GET {{url}}/api/ReserveApp/GetCourts
+
+### Usunięcie kortu
+DELETE {{url}}/api/ReserveApp/DeleteCourt/1
