@@ -6,6 +6,13 @@ using reserveAPP.Models;
 using reserveAPP.Services;
 
 
+using Microsoft.AspNetCore.Mvc;
+using System.Data;
+using System.Data.SqlClient;
+using System.Data.SqlTypes;
+using reserveAPP.Models;
+using reserveAPP.Services;
+
 namespace reserveAPP.Controllers
 {
     [Route("api/[controller]")]
@@ -33,9 +40,10 @@ namespace reserveAPP.Controllers
         }
 
         [HttpPut]
-        [Route("UpdateReservation")]
-        public IActionResult UpdateReservation([FromBody] ReservationModel reservation)
+        [Route("UpdateReservation/{id}")]
+        public IActionResult UpdateReservation(int id, [FromBody] ReservationModel reservation)
         {
+            reservation.ReservationId = id; // Przypisz ID rezerwacji z URL do modelu
             _reservationService.UpdateReservation(reservation);
             return new JsonResult("Reservation Updated Successfully");
         }

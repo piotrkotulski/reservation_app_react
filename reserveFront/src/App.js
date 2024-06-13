@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './styles/global.scss';
 import NavigationBar from './components/views/Navbar';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'; // zmiana importu na Routes
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from "./components/pages/HomePage/HomePage";
 import Reports from './components/pages/Reports';
 import Reservations from './components/pages/Reservations';
@@ -21,11 +21,11 @@ function App() {
   const [displayedReservations, setDisplayedReservations] = useState(new Set());
   const [openingHour, setOpeningHour] = useState(8);
   const [closingHour, setClosingHour] = useState(22);
-
+  const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
 
   useEffect(() => {
     fetchReservations();
-  }, []);
+  }, [selectedDate]);
 
   useEffect(() => {
     if (reservations.length > 0) {
@@ -45,11 +45,9 @@ function App() {
     courtHeaders.push(<th key={`court-${i}`}>Kort {i}</th>);
   }
 
- 
-
   const fetchReservations = async () => {
     try {
-      const response = await fetch(`${API_URL}api/ReserveApp/GetReservations`);
+      const response = await fetch(`${API_URL}api/ReserveApp/GetReservations?date=${selectedDate}`);
       if (response.ok) {
         const data = await response.json();
         const formattedData = data.map(reservation => ({
@@ -83,20 +81,19 @@ function App() {
   };
 
   const confirmReservation = async (clientName, phoneNumber, notes, multiSportCard, duration) => {
-    const today = new Date();
-    const startTime = new Date(`${format(today, 'yyyy-MM-dd')}T${selectedSlot.time}`);
+    const startTime = new Date(`${selectedDate}T${selectedSlot.time}`);
     const endTime = new Date(startTime);
     endTime.setMinutes(startTime.getMinutes() + duration);
 
     const reservationData = {
       CourtId: selectedSlot.court,
       UserId: 1,
-      Date: format(today, "yyyy-MM-dd"),
+      Date: selectedDate,
       StartTime: format(startTime, "HH:mm:ss"),
       EndTime: format(endTime, "HH:mm:ss"),
-      ClientName: clientName,     
-      PhoneNumber: phoneNumber,   
-      Notes: notes,               
+      ClientName: clientName,
+      PhoneNumber: phoneNumber,
+      Notes: notes,
       MultiSportCard: multiSportCard
     };
 
@@ -119,6 +116,42 @@ function App() {
     handleCloseModal();
   };
 
+  const updateReservation = async (reservationId, clientName, phoneNumber, notes, multiSportCard, duration) => {
+    const startTime = new Date(`${selectedDate}T${selectedSlot ? selectedSlot.time : selectedReservation.StartTime}`);
+    const endTime = new Date(startTime);
+    endTime.setMinutes(startTime.getMinutes() + duration);
+
+    const reservationData = {
+      CourtId: selectedSlot ? selectedSlot.court : selectedReservation.CourtId,
+      UserId: selectedReservation.UserId,
+      Date: selectedDate,
+      StartTime: format(startTime, "HH:mm:ss"),
+      EndTime: format(endTime, "HH:mm:ss"),
+      ClientName: clientName,
+      PhoneNumber: phoneNumber,
+      Notes: notes,
+      MultiSportCard: multiSportCard
+    };
+
+    try {
+      const response = await fetch(`${API_URL}api/ReserveApp/UpdateReservation/${reservationId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(reservationData),
+      });
+
+      if (response.ok) {
+        alert("Reservation Updated Successfully");
+        fetchReservations();
+      } else {
+        alert('Failed to update reservation');
+      }
+    } catch (error) {
+      console.error("Error during reservation update:", error);
+    }
+    handleCloseModal();
+  };
+
   const confirmDelete = async (reservation) => {
     try {
       const response = await fetch(`${API_URL}api/ReserveApp/DeleteReservation/${reservation.id}`, {
@@ -129,7 +162,9 @@ function App() {
         alert("Reservation Deleted Successfully");
         fetchReservations();
       } else {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({
+          message: 'Unknown error occurred'
+        }));
         alert(`Failed to delete reservation: ${errorData.message}`);
       }
     } catch (error) {
@@ -139,10 +174,15 @@ function App() {
   };
 
   const isReserved = (court, time) => {
-    const today = format(new Date(), 'yyyy-MM-dd');
+    console.log(time, court, selectedDate);
+    console.log(reservations[0]);
+
+    //strat time nie powinien być w przedzile startTime do EndTime obecnego eventu. to samo dotyczy endTime
+    //parametr time nazywamy startTime, dodajemy też trzeci parametr- endTime, court zmieniamy na courtId
+    //przekaz selecetedDate jako parametr
     return reservations.find(res =>
         res.CourtId === court &&
-        res.Date === today &&
+        res.Date === selectedDate &&
         res.StartTime <= time &&
         res.EndTime > time
     );
@@ -150,28 +190,27 @@ function App() {
 
   const times = [];
   for (let hour = openingHour; hour <= closingHour; hour++) {
-    let currentTime = new Date(); // Utwórz nowy obiekt Date
-    currentTime.setHours(hour, 0, 0, 0); // Ustaw godziny, minuty, sekundy i milisekundy
+    let currentTime = new Date();
+    currentTime.setHours(hour, 0, 0, 0);
 
     for (let minute = 0; minute < 60; minute += 30) {
-      let slotTime = addMinutes(currentTime, minute); // Dodaj minuty do obiektu Date
-      times.push(format(slotTime, 'HH:mm')); // Formatuj czas do 'HH:mm' i dodaj do tablicy
+      let slotTime = addMinutes(currentTime, minute);
+      times.push(format(slotTime, 'HH:mm'));
     }
   }
-
-
 
   const timeSlots = times.map(time => (
       <tr key={time}>
         <td className={styles.hourCell}>{time}</td>
         {Array.from({ length: numCourts }, (_, i) => {
+          console.log('ABC');
           const courtId = i + 1;
           const reservation = isReserved(courtId, time);
           const isTimeReserved = reservation != null;
 
           let displayDetails = null;
           if (reservation && isFirstSlotOfReservation(reservation, time)) {
-            displayDetails = `${reservation.StartTime} - ${reservation.EndTime}`;
+            displayDetails = `${reservation.StartTime} - ${reservation.EndTime} ${reservation.ClientName} ${reservation.PhoneNumber}`;
           }
           if (isTimeReserved) {
             const reservationKey = `${reservation.Date}-${reservation.StartTime}-${reservation.CourtId}`;
@@ -180,7 +219,7 @@ function App() {
             if (isFirstSlotOfReservation) {
               displayDetails = (
                   <span className="reservation-details">
-                {reservation.StartTime} - {reservation.EndTime}
+                {reservation.StartTime} - {reservation.EndTime} {reservation.ClientName} {reservation.PhoneNumber}
               </span>
               );
               setDisplayedReservations(prev => new Set(prev.add(reservationKey)));
@@ -216,31 +255,52 @@ function App() {
   function isFirstSlotOfReservation(reservation, time) {
     return reservation.StartTime === time;
   }
-    return (
-        <Router>
-          <div className="App">
-            <NavigationBar />
-            <Routes>
-              <Route path="/" element={<HomePage API_URL={API_URL} numCourts={numCourts} setNumCourts={setNumCourts} courtHeaders={courtHeaders} timeSlots={timeSlots} selectedSlot={selectedSlot} selectedReservation={selectedReservation} confirmReservation={confirmReservation} handleCloseModal={handleCloseModal} confirmDelete={confirmDelete} />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/reservations" element={<Reservations />} />
-              <Route path="/users" element={<Users />} />
-              <Route path="/settings" element={
-                <Settings
-                    numCourts={numCourts}
-                    setNumCourts={setNumCourts}
-                    openingHour={openingHour}
-                    closingHour={closingHour}
-                    setOpeningHour={setOpeningHour}
-                    setClosingHour={setClosingHour}
-                />}
-              />
 
-
-            </Routes>
-          </div>
-        </Router>
-    );
-  }
+  return (
+      <Router>
+        <div className="App">
+          <NavigationBar />
+          <Routes>
+            <Route
+                path="/"
+                element={
+                  <HomePage
+                      API_URL={API_URL}
+                      numCourts={numCourts}
+                      setNumCourts={setNumCourts}
+                      courtHeaders={courtHeaders}
+                      timeSlots={timeSlots}
+                      selectedSlot={selectedSlot}
+                      selectedReservation={selectedReservation}
+                      confirmReservation={confirmReservation}
+                      updateReservation={updateReservation}
+                      handleCloseModal={handleCloseModal}
+                      confirmDelete={confirmDelete}
+                      selectedDate={selectedDate}
+                      setSelectedDate={setSelectedDate}
+                  />
+                }
+            />
+            <Route path="/reports" element={<Reports />} />
+            <Route path="/reservations" element={<Reservations />} />
+            <Route path="/users" element={<Users />} />
+            <Route
+                path="/settings"
+                element={
+                  <Settings
+                      numCourts={numCourts}
+                      setNumCourts={setNumCourts}
+                      openingHour={openingHour}
+                      closingHour={closingHour}
+                      setOpeningHour={setOpeningHour}
+                      setClosingHour={setClosingHour}
+                  />
+                }
+            />
+          </Routes>
+        </div>
+      </Router>
+  );
+}
 
 export default App;

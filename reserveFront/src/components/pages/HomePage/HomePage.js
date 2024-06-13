@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from "./HomePage.module.scss";
 import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
@@ -9,18 +9,20 @@ import TextField from '@mui/material/TextField';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
-
-
-const HomePage = ({   API_URL,
+const HomePage = ({
+                      API_URL,
                       courtHeaders,
                       timeSlots,
                       selectedSlot,
                       selectedReservation,
                       confirmReservation,
+                      updateReservation,
                       handleCloseModal,
                       confirmDelete,
+                      selectedDate,
+                      setSelectedDate,
                   }) => {
-    const [duration, setDuration] = useState(30); // Domyślna długość rezerwacji
+    const [duration, setDuration] = useState(30);
     const [multiSportCard, setMultiSportCard] = useState(false);
     const [clientName, setClientName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
@@ -29,36 +31,59 @@ const HomePage = ({   API_URL,
     const [userData, setUserData] = useState({});
     const [userList, setUserList] = useState([]);
 
-
+    useEffect(() => {
+        if (selectedReservation) {
+            setDuration(
+                (new Date(`1970-01-01T${selectedReservation.EndTime}`).getTime() - new Date(`1970-01-01T${selectedReservation.StartTime}`).getTime()) / 60000
+            );
+            setClientName(selectedReservation.ClientName);
+            setPhoneNumber(selectedReservation.PhoneNumber);
+            setNotes(selectedReservation.Notes);
+            setMultiSportCard(selectedReservation.MultiSportCard);
+        }
+    }, [selectedReservation]);
 
     const handleNameChange = async (event) => {
         const name = event.target.value;
         setClientName(name);
-    
+
         if (name.length >= 3) {
             try {
                 const response = await fetch(`${API_URL}api/ReserveApp/SearchUsers?searchTerm=${name}`);
                 const users = await response.json();
-                setUserList(users); // Tutaj przychodzi lista użytkowników
+                setUserList(users);
             } catch (error) {
                 console.error("Error fetching user data:", error);
-                setUserList([]); // W razie błędu czyścimy listę
+                setUserList([]);
             }
         } else {
-            setUserList([]); // Wyczyść listę, jeśli jest mniej niż 3 znaki
+            setUserList([]);
         }
     };
 
     const handleUserSelect = (user) => {
-    // Uzupełnij pola danymi wybranego użytkownika
-    setClientName(`${user.FirstName} ${user.LastName}`);
-    setPhoneNumber(user.PhoneNumber);
-    setUserData(user);
-    setUserList([]); // Wyczyść listę po wyborze
+        setClientName(`${user.FirstName} ${user.LastName}`);
+        setPhoneNumber(user.PhoneNumber);
+        setUserData(user);
+        setUserList([]);
+    };
+
+    const handleDateChange = (event) => {
+        setSelectedDate(event.target.value);
     };
 
     return (
         <div>
+            <TextField
+                label="Wybierz datę"
+                type="date"
+                value={selectedDate}
+                onChange={handleDateChange}
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+                margin="normal"
+            />
+
             <table className="reservation-calendar">
                 <thead>
                 <tr>
@@ -98,19 +123,19 @@ const HomePage = ({   API_URL,
                             onChange={handleNameChange}
                             fullWidth
                             margin="normal"
-                            autoComplete="off" // Wyłącz autouzupełnianie
+                            autoComplete="off"
                         />
                         {userList.length > 0 && (
                             <ul className={styles.userList}>
-                            {userList.map((user) => (
-                                <li
-                                key={user.UserId}
-                                onClick={() => handleUserSelect(user)}
-                                className={styles.userListItem}
-                                >
-                                {`${user.FirstName} ${user.LastName}`}
-                                </li>
-                            ))}
+                                {userList.map((user) => (
+                                    <li
+                                        key={user.UserId}
+                                        onClick={() => handleUserSelect(user)}
+                                        className={styles.userListItem}
+                                    >
+                                        {`${user.FirstName} ${user.LastName}`}
+                                    </li>
+                                ))}
                             </ul>
                         )}
 
@@ -143,7 +168,6 @@ const HomePage = ({   API_URL,
 
                         <Button className={styles.successBtt} onClick={() => confirmReservation(clientName, phoneNumber, notes, multiSportCard, duration)}>Potwierdź</Button>
 
-
                         <Button className={styles.deleteBtt} onClick={handleCloseModal}>Anuluj</Button>
                     </div>
                 </div>
@@ -152,9 +176,79 @@ const HomePage = ({   API_URL,
             {selectedReservation && (
                 <div className={styles.modal}>
                     <div className={styles.modalContent}>
-                        <h2>Usuń Rezerwację</h2>
+                        <h2>Edytuj Rezerwację</h2>
                         <p>Kort: {selectedReservation.CourtId}, Godzina: {selectedReservation.StartTime}</p>
-                        <Button className={styles.trashBtt} onClick={() => confirmDelete(selectedReservation)}>Usuń</Button>
+
+                        <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+                            <InputLabel id="duration-select-label">Czas trwania</InputLabel>
+                            <Select
+                                className={styles.durationSelect}
+                                labelId="duration-select-label"
+                                id="duration-select"
+                                value={duration.toString()}
+                                label="Czas trwania"
+                                onChange={e => setDuration(Number(e.target.value))}
+                            >
+                                <MenuItem value={30}>30 minut</MenuItem>
+                                <MenuItem value={60}>1 godzina</MenuItem>
+                                <MenuItem value={90}>1 godzina 30 minut</MenuItem>
+                                <MenuItem value={120}>2 godziny</MenuItem>
+                            </Select>
+                        </FormControl>
+
+                        <TextField
+                            label="Imię i nazwisko"
+                            value={clientName}
+                            onChange={handleNameChange}
+                            fullWidth
+                            margin="normal"
+                            autoComplete="off"
+                        />
+                        {userList.length > 0 && (
+                            <ul className={styles.userList}>
+                                {userList.map((user) => (
+                                    <li
+                                        key={user.UserId}
+                                        onClick={() => handleUserSelect(user)}
+                                        className={styles.userListItem}
+                                    >
+                                        {`${user.FirstName} ${user.LastName}`}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+
+                        <TextField
+                            label="Telefon"
+                            value={phoneNumber}
+                            onChange={(e) => setPhoneNumber(e.target.value)}
+                            fullWidth
+                            margin="normal"
+                        />
+
+                        <TextField
+                            label="Uwagi"
+                            value={notes}
+                            onChange={(e) => setNotes(e.target.value)}
+                            fullWidth
+                            margin="normal"
+                            multiline
+                        />
+
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={multiSportCard}
+                                    onChange={(e) => setMultiSportCard(e.target.checked)}
+                                />
+                            }
+                            label="Karta Multisport"
+                        />
+
+                        <Button className={styles.successBtt} onClick={() => updateReservation(selectedReservation.ReservationId, clientName, phoneNumber, notes, multiSportCard, duration)}>Zaktualizuj</Button>
+
+                        <Button className={styles.deleteBtt} onClick={() => confirmDelete(selectedReservation)}>Usuń Rezerwację</Button>
+
                         <Button className={styles.deleteBtt} onClick={handleCloseModal}>Anuluj</Button>
                     </div>
                 </div>
@@ -164,6 +258,5 @@ const HomePage = ({   API_URL,
 };
 
 export default HomePage;
-
 
 
