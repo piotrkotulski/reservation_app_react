@@ -282,8 +282,14 @@ const Reservations = () => {
                                 <TableCell>{reservation.Notes}</TableCell>
                                 <TableCell>{reservation.MultiSportCard ? 'Tak' : 'Nie'}</TableCell>
                                 <TableCell>
-                                    <Button variant="contained" color="primary" onClick={() => handleOpenEditModal(reservation)}>Edytuj</Button>
-                                    <Button variant="contained" color="secondary" onClick={() => handleDeleteReservation(reservation.ReservationId)}>Usuń</Button>
+                                    <Grid container spacing={1}>
+                                        <Grid item>
+                                            <Button variant="contained" color="primary" onClick={() => handleOpenEditModal(reservation)}>Edytuj</Button>
+                                        </Grid>
+                                        <Grid item>
+                                            <Button variant="contained" color="secondary" onClick={() => handleDeleteReservation(reservation.ReservationId)}>Usuń</Button>
+                                        </Grid>
+                                    </Grid>
                                 </TableCell>
                             </TableRow>
                         ))}
