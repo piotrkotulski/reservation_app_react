@@ -56,6 +56,14 @@ namespace reserveAPP.Controllers
             return new JsonResult(reservations);
         }
 
+          [HttpDelete]
+          [Route("DeleteReservation/{id}")]
+                public IActionResult DeleteReservation(int id)
+                {
+                    _reservationService.DeleteReservation(id);
+                    return new JsonResult("Reservation Deleted Successfully");
+          }
+
         [HttpPost]
         [Route("CreateUser")]
         public IActionResult CreateUser([FromBody] UserModel user)

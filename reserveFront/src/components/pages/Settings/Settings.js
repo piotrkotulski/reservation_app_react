@@ -1,104 +1,128 @@
-import React from 'react';
-import { TextField, InputAdornment, IconButton, Container, Grid } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import RemoveIcon from '@mui/icons-material/Remove';
+import React, {useState} from 'react';
+import {ChromePicker} from 'react-color';
+import {TextField, Button, Typography, Box, List, ListItem, ListItemText, ListItemIcon} from '@mui/material';
+import {Add, Save} from '@mui/icons-material';
+import styles from './Settings.module.scss';
 
-const Settings = ({ numCourts, setNumCourts, openingHour, setOpeningHour, closingHour, setClosingHour }) => {
-    const handleIncrement = () => {
-        setNumCourts((prevCount) => (prevCount < 10 ? prevCount + 1 : prevCount));
+const Settings = ({
+                      numCourts,
+                      setNumCourts,
+                      openingHour,
+                      closingHour,
+                      setOpeningHour,
+                      setClosingHour,
+                      handleSaveGroups
+                  }) => {
+    const [userGroups, setUserGroups] = useState(JSON.parse(localStorage.getItem('userGroups')) || []);
+    const [groupName, setGroupName] = useState('');
+    const [groupColor, setGroupColor] = useState('#ffffff');
+
+    const handleAddGroup = () => {
+        const newGroup = {name: groupName, color: groupColor};
+        const updatedGroups = [...userGroups, newGroup];
+        setUserGroups(updatedGroups);
+        localStorage.setItem('userGroups', JSON.stringify(updatedGroups));
+        setGroupName('');
+        setGroupColor('#ffffff');
     };
 
-    const handleDecrement = () => {
-        setNumCourts((prevCount) => (prevCount > 1 ? prevCount - 1 : prevCount));
-    };
-
-    const handleChange = (e) => {
-        const value = Number(e.target.value);
-        setNumCourts(value >= 1 && value <= 10 ? value : numCourts);
-    };
-
-    const handleOpeningHourChange = (e) => {
-        setOpeningHour(e.target.value);
-    };
-
-    const handleClosingHourChange = (e) => {
-        setClosingHour(e.target.value);
+    const handleSave = () => {
+        console.log('Groups saved:', userGroups);
+        handleSaveGroups(userGroups);
     };
 
     return (
-        <Container className="mt-5">
-            <h2>Ustawienia</h2>
-            <Grid container spacing={2}>
-                <Grid item xs={12}>
-                    <TextField
-                        label="Liczba kortów"
-                        type="number"
-                        value={numCourts}
-                        onChange={handleChange}
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <IconButton onClick={handleDecrement} disabled={numCourts <= 1}>
-                                        <RemoveIcon />
-                                    </IconButton>
-                                </InputAdornment>
-                            ),
-                            endAdornment: (
-                                <InputAdornment position="end">
-                                    <IconButton onClick={handleIncrement} disabled={numCourts >= 10}>
-                                        <AddIcon />
-                                    </IconButton>
-                                </InputAdornment>
-                            ),
-                        }}
-                        inputProps={{
-                            style: { textAlign: 'center' },
-                            min: 1,
-                            max: 10,
-                        }}
-                        variant="outlined"
-                        size="small"
-                        fullWidth
-                    />
-                </Grid>
-                {/*<Grid item xs={6}>
-                    <TextField
-                        label="Godzina otwarcia"
-                        type="time"
-                        value={openingHour}
-                        onChange={handleOpeningHourChange}
-                        inputProps={{
-                            step: 1800, // 30 min
-                        }}
-                        InputLabelProps={{
-                            shrink: true,
-                        }}
-                        variant="outlined"
-                        size="small"
-                        fullWidth
-                    />
-                </Grid>
-                <Grid item xs={6}>
-                    <TextField
-                        label="Godzina zamknięcia"
-                        type="time"
-                        value={closingHour}
-                        onChange={handleClosingHourChange}
-                        inputProps={{
-                            step: 1800, // 30 min
-                        }}
-                        InputLabelProps={{
-                            shrink: true,
-                        }}
-                        variant="outlined"
-                        size="small"
-                        fullWidth
-                    />
-                </Grid>*/}
-            </Grid>
-        </Container>
+        <Box className={styles.settings}>
+            <Typography variant="h4" gutterBottom>USTAWIENIA</Typography>
+
+            <Box className={styles.courtSettings}>
+                <Typography variant="h6" gutterBottom>Ilość kortów w obiekcie</Typography>
+                <TextField
+                    label="Liczba kortów"
+                    type="number"
+                    value={numCourts}
+                    onChange={(e) => setNumCourts(parseInt(e.target.value))}
+                    inputProps={{min: 1}}
+                    fullWidth
+                    margin="normal"
+                />
+
+                <Typography variant="h6" gutterBottom>Dostępny przedział czasowy</Typography>
+                <TextField
+                    label="Godzina otwarcia"
+                    type="number"
+                    value={openingHour}
+                    onChange={(e) => setOpeningHour(parseInt(e.target.value))}
+                    inputProps={{min: 0, max: 23}}
+                    fullWidth
+                    margin="normal"
+                />
+                <TextField
+                    label="Godzina zamknięcia"
+                    type="number"
+                    value={closingHour}
+                    onChange={(e) => setClosingHour(parseInt(e.target.value))}
+                    inputProps={{min: 0, max: 23}}
+                    fullWidth
+                    margin="normal"
+                />
+            </Box>
+
+            <Box className={styles.userGroupConfig}>
+                <Typography variant="h6" gutterBottom>Konfiguracja grup użytkowników</Typography>
+                <TextField
+                    label="Nazwa grupy"
+                    value={groupName}
+                    onChange={(e) => setGroupName(e.target.value)}
+                    fullWidth
+                    margin="normal"
+                />
+                <Typography variant="body1" gutterBottom>Wybierz kolor:</Typography>
+                <ChromePicker
+                    color={groupColor}
+                    onChangeComplete={(color) => setGroupColor(color.hex)}
+                />
+                <Box mt={2}>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        startIcon={<Add/>}
+                        onClick={handleAddGroup}
+                        sx={{mr: 2}}
+                    >
+                        Dodaj kolejny
+                    </Button>
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        startIcon={<Save/>}
+                        onClick={handleSave}
+                    >
+                        Zapisz
+                    </Button>
+                </Box>
+
+                <Box mt={4}>
+                    <Typography variant="h6" gutterBottom>Lista grup</Typography>
+                    <List>
+                        {userGroups.map((group, index) => (
+                            <ListItem key={index}>
+                                <ListItemIcon>
+                                    <div style={{
+                                        backgroundColor: group.color,
+                                        width: 24,
+                                        height: 24,
+                                        borderRadius: '50%'
+                                    }}/>
+                                </ListItemIcon>
+                                <ListItemText primary={group.name}/>
+                            </ListItem>
+                        ))}
+                    </List>
+                </Box>
+            </Box>
+        </Box>
     );
 };
 
 export default Settings;
-

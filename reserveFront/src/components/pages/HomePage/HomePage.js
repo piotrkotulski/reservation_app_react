@@ -8,6 +8,7 @@ import Select from '@mui/material/Select';
 import TextField from '@mui/material/TextField';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import Autocomplete from '@mui/material/Autocomplete';
 
 const HomePage = ({
                       API_URL,
@@ -21,18 +22,21 @@ const HomePage = ({
                       confirmDelete,
                       selectedDate,
                       setSelectedDate,
+                      userGroups // make sure this is passed as a prop
                   }) => {
     const [duration, setDuration] = useState(30);
     const [multiSportCard, setMultiSportCard] = useState(false);
     const [clientName, setClientName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [notes, setNotes] = useState('');
-    const [trainer, setTrainer] = useState('');
     const [userData, setUserData] = useState({});
     const [userList, setUserList] = useState([]);
+    const [filteredUserList, setFilteredUserList] = useState([]);
+    const [selectedGroup, setSelectedGroup] = useState('');
 
     useEffect(() => {
         if (selectedReservation) {
+            console.log("Selected Reservation: ", selectedReservation);
             setDuration(
                 (new Date(`1970-01-01T${selectedReservation.EndTime}`).getTime() - new Date(`1970-01-01T${selectedReservation.StartTime}`).getTime()) / 60000
             );
@@ -40,36 +44,59 @@ const HomePage = ({
             setPhoneNumber(selectedReservation.PhoneNumber);
             setNotes(selectedReservation.Notes);
             setMultiSportCard(selectedReservation.MultiSportCard);
+            setSelectedGroup(selectedReservation.GroupName || '');
         }
     }, [selectedReservation]);
 
-    const handleNameChange = async (event) => {
-        const name = event.target.value;
-        setClientName(name);
+    useEffect(() => {
+        fetchUsers();
+    }, []);
 
-        if (name.length >= 3) {
-            try {
-                const response = await fetch(`${API_URL}api/ReserveApp/SearchUsers?searchTerm=${name}`);
-                const users = await response.json();
-                setUserList(users);
-            } catch (error) {
-                console.error("Error fetching user data:", error);
-                setUserList([]);
-            }
-        } else {
-            setUserList([]);
+    const fetchUsers = async () => {
+        try {
+            const response = await fetch(`${API_URL}api/ReserveApp/GetUsers`);
+            const users = await response.json();
+            setUserList(users);
+        } catch (error) {
+            console.error("Error fetching user data:", error);
         }
     };
 
-    const handleUserSelect = (user) => {
-        setClientName(`${user.FirstName} ${user.LastName}`);
-        setPhoneNumber(user.PhoneNumber);
-        setUserData(user);
-        setUserList([]);
+    const handleNameChange = (event, value) => {
+        const name = typeof value === 'string' ? value : value?.name || '';
+        setClientName(name);
+
+        if (name.length >= 3) {
+            const filtered = userList.filter(user =>
+                `${user.FirstName} ${user.LastName}`.toLowerCase().includes(name.toLowerCase())
+            );
+            setFilteredUserList(filtered);
+        } else {
+            setFilteredUserList([]);
+        }
+    };
+
+    const handleUserSelect = (event, user) => {
+        if (user) {
+            setClientName(`${user.FirstName} ${user.LastName}`);
+            setPhoneNumber(user.PhoneNumber);
+            setUserData(user);
+            setSelectedGroup(user.GroupName || '');
+        }
     };
 
     const handleDateChange = (event) => {
         setSelectedDate(event.target.value);
+    };
+
+    const handleConfirmReservation = () => {
+        console.log("Confirming Reservation with Group: ", selectedGroup);
+        confirmReservation(clientName, phoneNumber, notes, multiSportCard, duration, selectedGroup);
+    };
+
+    const handleUpdateReservation = () => {
+        console.log("Updating Reservation with Group: ", selectedGroup);
+        updateReservation(selectedReservation.ReservationId, clientName, phoneNumber, notes, multiSportCard, duration, selectedGroup);
     };
 
     return (
@@ -117,27 +144,23 @@ const HomePage = ({
                             </Select>
                         </FormControl>
 
-                        <TextField
-                            label="Imię i nazwisko"
-                            value={clientName}
-                            onChange={handleNameChange}
-                            fullWidth
-                            margin="normal"
-                            autoComplete="off"
+                        <Autocomplete
+                            freeSolo
+                            options={filteredUserList}
+                            getOptionLabel={(option) => `${option.FirstName} ${option.LastName}`}
+                            onChange={handleUserSelect}
+                            inputValue={clientName}
+                            onInputChange={handleNameChange}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label="Imię i nazwisko"
+                                    fullWidth
+                                    margin="normal"
+                                    autoComplete="off"
+                                />
+                            )}
                         />
-                        {userList.length > 0 && (
-                            <ul className={styles.userList}>
-                                {userList.map((user) => (
-                                    <li
-                                        key={user.UserId}
-                                        onClick={() => handleUserSelect(user)}
-                                        className={styles.userListItem}
-                                    >
-                                        {`${user.FirstName} ${user.LastName}`}
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
 
                         <TextField
                             label="Telefon"
@@ -146,6 +169,23 @@ const HomePage = ({
                             fullWidth
                             margin="normal"
                         />
+
+                        <FormControl fullWidth margin="normal">
+                            <InputLabel id="group-select-label">Grupa</InputLabel>
+                            <Select
+                                labelId="group-select-label"
+                                id="group-select"
+                                value={selectedGroup}
+                                label="Grupa"
+                                onChange={(e) => setSelectedGroup(e.target.value)}
+                            >
+                                {userGroups.map((group, index) => (
+                                    <MenuItem key={index} value={group.name}>
+                                        {group.name}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
 
                         <TextField
                             label="Uwagi"
@@ -166,7 +206,7 @@ const HomePage = ({
                             label="Karta Multisport"
                         />
 
-                        <Button className={styles.successBtt} onClick={() => confirmReservation(clientName, phoneNumber, notes, multiSportCard, duration)}>Potwierdź</Button>
+                        <Button className={styles.successBtt} onClick={handleConfirmReservation}>Potwierdź</Button>
 
                         <Button className={styles.deleteBtt} onClick={handleCloseModal}>Anuluj</Button>
                     </div>
@@ -196,27 +236,23 @@ const HomePage = ({
                             </Select>
                         </FormControl>
 
-                        <TextField
-                            label="Imię i nazwisko"
-                            value={clientName}
-                            onChange={handleNameChange}
-                            fullWidth
-                            margin="normal"
-                            autoComplete="off"
+                        <Autocomplete
+                            freeSolo
+                            options={filteredUserList}
+                            getOptionLabel={(option) => `${option.FirstName} ${option.LastName}`}
+                            onChange={handleUserSelect}
+                            inputValue={clientName}
+                            onInputChange={handleNameChange}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label="Imię i nazwisko"
+                                    fullWidth
+                                    margin="normal"
+                                    autoComplete="off"
+                                />
+                            )}
                         />
-                        {userList.length > 0 && (
-                            <ul className={styles.userList}>
-                                {userList.map((user) => (
-                                    <li
-                                        key={user.UserId}
-                                        onClick={() => handleUserSelect(user)}
-                                        className={styles.userListItem}
-                                    >
-                                        {`${user.FirstName} ${user.LastName}`}
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
 
                         <TextField
                             label="Telefon"
@@ -225,6 +261,23 @@ const HomePage = ({
                             fullWidth
                             margin="normal"
                         />
+
+                        <FormControl fullWidth margin="normal">
+                            <InputLabel id="group-select-label">Grupa</InputLabel>
+                            <Select
+                                labelId="group-select-label"
+                                id="group-select"
+                                value={selectedGroup}
+                                label="Grupa"
+                                onChange={(e) => setSelectedGroup(e.target.value)}
+                            >
+                                {userGroups.map((group, index) => (
+                                    <MenuItem key={index} value={group.name}>
+                                        {group.name}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
 
                         <TextField
                             label="Uwagi"
@@ -245,7 +298,7 @@ const HomePage = ({
                             label="Karta Multisport"
                         />
 
-                        <Button className={styles.successBtt} onClick={() => updateReservation(selectedReservation.ReservationId, clientName, phoneNumber, notes, multiSportCard, duration)}>Zaktualizuj</Button>
+                        <Button className={styles.successBtt} onClick={handleUpdateReservation}>Zaktualizuj</Button>
 
                         <Button className={styles.deleteBtt} onClick={() => confirmDelete(selectedReservation)}>Usuń Rezerwację</Button>
 
@@ -258,5 +311,3 @@ const HomePage = ({
 };
 
 export default HomePage;
-
-

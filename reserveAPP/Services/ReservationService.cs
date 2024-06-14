@@ -74,6 +74,21 @@ namespace reserveAPP.Services
             }
         }
 
+        public void DeleteReservation(int reservationId)
+                {
+                    string query = "DELETE FROM dbo.Reservations WHERE ReservationId = @ReservationId";
+
+                    using (SqlConnection myConn = new SqlConnection(_connectionString))
+                    {
+                        myConn.Open();
+                        using (SqlCommand myCommand = new SqlCommand(query, myConn))
+                        {
+                            myCommand.Parameters.AddWithValue("@ReservationId", reservationId);
+                            myCommand.ExecuteNonQuery();
+                        }
+                    }
+                }
+
         public DataTable GetReservations()
         {
             string query = "SELECT * FROM dbo.Reservations";

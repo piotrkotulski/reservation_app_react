@@ -1,5 +1,10 @@
 @import "../../../styles/settings";
 
+.dateBox {
+  display: flex;
+  justify-content: center;
+  margin: 20px 30% 20px 30%;
+}
 
 .modal {
   position: fixed;
@@ -20,7 +25,7 @@
   padding: 20px;
   border: 1px solid #888;
   width: 80%;
-  max-width: 600px; 
+  max-width: 600px;
   border-radius: 10px;
 
   .successBtt {
@@ -41,6 +46,7 @@
       color: $color-warning;
     }
   }
+
   .trashBtt {
     background-color: $color-dark;
 
@@ -66,16 +72,15 @@
   }
 }
 
-.durationSelect{
-  min-width:185px ;
+.durationSelect {
+  min-width: 185px;
 }
 
 
-.hourCell{
+.hourCell {
   width: 150px;
   text-align: center;
 }
-
 
 
 .userList {
@@ -89,15 +94,17 @@
   max-height: 200px;
   overflow-y: auto;
   width: 100%;
-  z-index: 100; 
+  z-index: 100;
 
   .userListItem {
     padding: 10px;
     border-bottom: 1px solid #ddd;
     cursor: pointer;
+
     &:last-child {
       border-bottom: none;
     }
+
     &:hover {
       background-color: #f7f7f7;
     }
