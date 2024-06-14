@@ -7,7 +7,7 @@ import Reports from './components/pages/Reports';
 import Reservations from './components/pages/Reservations';
 import Users from './components/pages/Users';
 import Settings from './components/pages/Settings/Settings';
-import { format, addMinutes } from 'date-fns';
+import { format, addMinutes, setHours, setMinutes } from 'date-fns';
 import styles from "./components/pages/HomePage/HomePage.module.scss";
 
 const App = () => {
@@ -189,7 +189,7 @@ const App = () => {
     };
 
     const times = [];
-    for (let hour = openingHour; hour <= closingHour; hour++) {
+    for (let hour = openingHour; hour < closingHour; hour++) {
         let currentTime = new Date();
         currentTime.setHours(hour, 0, 0, 0);
 
@@ -198,6 +198,8 @@ const App = () => {
             times.push(format(slotTime, 'HH:mm'));
         }
     }
+    // Dodajemy ostatni slot kończący się dokładnie o godzinie zamknięcia
+    times.push(format(setMinutes(setHours(new Date(), closingHour), 0), 'HH:mm'));
 
     const timeSlots = times.map(time => (
         <tr key={time}>

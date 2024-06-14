@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import styles from "./HomePage.module.scss";
 import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
@@ -101,15 +101,17 @@ const HomePage = ({
 
     return (
         <div>
-            <TextField
-                label="Wybierz datę"
-                type="date"
-                value={selectedDate}
-                onChange={handleDateChange}
-                InputLabelProps={{ shrink: true }}
-                fullWidth
-                margin="normal"
-            />
+            <div className={styles.dateBox}>
+                <TextField
+                    label="Wybierz datę"
+                    type="date"
+                    value={selectedDate}
+                    onChange={handleDateChange}
+                    InputLabelProps={{shrink: true}}
+                    fullWidth
+                    margin="normal"
+                />
+            </div>
 
             <table className="reservation-calendar">
                 <thead>
@@ -127,7 +129,7 @@ const HomePage = ({
                         <h2>Potwierdź rezerwację</h2>
                         <p>Kort: {selectedSlot.court}, Godzina: {selectedSlot.time}</p>
 
-                        <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+                        <FormControl sx={{m: 1, minWidth: 120}} size="small">
                             <InputLabel id="duration-select-label">Czas trwania</InputLabel>
                             <Select
                                 className={styles.durationSelect}
@@ -219,7 +221,7 @@ const HomePage = ({
                         <h2>Edytuj Rezerwację</h2>
                         <p>Kort: {selectedReservation.CourtId}, Godzina: {selectedReservation.StartTime}</p>
 
-                        <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+                        <FormControl sx={{m: 1, minWidth: 120}} size="small">
                             <InputLabel id="duration-select-label">Czas trwania</InputLabel>
                             <Select
                                 className={styles.durationSelect}
@@ -300,7 +302,8 @@ const HomePage = ({
 
                         <Button className={styles.successBtt} onClick={handleUpdateReservation}>Zaktualizuj</Button>
 
-                        <Button className={styles.deleteBtt} onClick={() => confirmDelete(selectedReservation)}>Usuń Rezerwację</Button>
+                        <Button className={styles.deleteBtt} onClick={() => confirmDelete(selectedReservation)}>Usuń
+                            Rezerwację</Button>
 
                         <Button className={styles.deleteBtt} onClick={handleCloseModal}>Anuluj</Button>
                     </div>

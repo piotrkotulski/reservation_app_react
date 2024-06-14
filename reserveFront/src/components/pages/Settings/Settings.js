@@ -1,7 +1,7 @@
-import React, {useState} from 'react';
-import {ChromePicker} from 'react-color';
-import {TextField, Button, Typography, Box, List, ListItem, ListItemText, ListItemIcon} from '@mui/material';
-import {Add, Save} from '@mui/icons-material';
+import React, { useState } from 'react';
+import { ChromePicker } from 'react-color';
+import { TextField, Button, Typography, Box, List, ListItem, ListItemText, ListItemIcon, IconButton } from '@mui/material';
+import { Add, Save, Edit, Delete } from '@mui/icons-material';
 import styles from './Settings.module.scss';
 
 const Settings = ({
@@ -16,14 +16,28 @@ const Settings = ({
     const [userGroups, setUserGroups] = useState(JSON.parse(localStorage.getItem('userGroups')) || []);
     const [groupName, setGroupName] = useState('');
     const [groupColor, setGroupColor] = useState('#ffffff');
+    const [editingIndex, setEditingIndex] = useState(null);
 
     const handleAddGroup = () => {
-        const newGroup = {name: groupName, color: groupColor};
-        const updatedGroups = [...userGroups, newGroup];
+        const newGroup = { name: groupName, color: groupColor };
+        const updatedGroups = editingIndex !== null ? userGroups.map((group, index) => index === editingIndex ? newGroup : group) : [...userGroups, newGroup];
         setUserGroups(updatedGroups);
         localStorage.setItem('userGroups', JSON.stringify(updatedGroups));
         setGroupName('');
         setGroupColor('#ffffff');
+        setEditingIndex(null);
+    };
+
+    const handleEditGroup = (index) => {
+        setGroupName(userGroups[index].name);
+        setGroupColor(userGroups[index].color);
+        setEditingIndex(index);
+    };
+
+    const handleDeleteGroup = (index) => {
+        const updatedGroups = userGroups.filter((_, i) => i !== index);
+        setUserGroups(updatedGroups);
+        localStorage.setItem('userGroups', JSON.stringify(updatedGroups));
     };
 
     const handleSave = () => {
@@ -42,7 +56,7 @@ const Settings = ({
                     type="number"
                     value={numCourts}
                     onChange={(e) => setNumCourts(parseInt(e.target.value))}
-                    inputProps={{min: 1}}
+                    inputProps={{ min: 1 }}
                     fullWidth
                     margin="normal"
                 />
@@ -53,7 +67,7 @@ const Settings = ({
                     type="number"
                     value={openingHour}
                     onChange={(e) => setOpeningHour(parseInt(e.target.value))}
-                    inputProps={{min: 0, max: 23}}
+                    inputProps={{ min: 0, max: 23 }}
                     fullWidth
                     margin="normal"
                 />
@@ -62,7 +76,7 @@ const Settings = ({
                     type="number"
                     value={closingHour}
                     onChange={(e) => setClosingHour(parseInt(e.target.value))}
-                    inputProps={{min: 0, max: 23}}
+                    inputProps={{ min: 0, max: 23 }}
                     fullWidth
                     margin="normal"
                 />
@@ -86,16 +100,16 @@ const Settings = ({
                     <Button
                         variant="contained"
                         color="primary"
-                        startIcon={<Add/>}
+                        startIcon={<Add />}
                         onClick={handleAddGroup}
-                        sx={{mr: 2}}
+                        sx={{ mr: 2 }}
                     >
-                        Dodaj kolejny
+                        {editingIndex !== null ? 'Zaktualizuj grupę' : 'Dodaj kolejny'}
                     </Button>
                     <Button
                         variant="contained"
                         color="secondary"
-                        startIcon={<Save/>}
+                        startIcon={<Save />}
                         onClick={handleSave}
                     >
                         Zapisz
@@ -113,9 +127,15 @@ const Settings = ({
                                         width: 24,
                                         height: 24,
                                         borderRadius: '50%'
-                                    }}/>
+                                    }} />
                                 </ListItemIcon>
-                                <ListItemText primary={group.name}/>
+                                <ListItemText primary={group.name} />
+                                <IconButton onClick={() => handleEditGroup(index)}>
+                                    <Edit />
+                                </IconButton>
+                                <IconButton onClick={() => handleDeleteGroup(index)}>
+                                    <Delete />
+                                </IconButton>
                             </ListItem>
                         ))}
                     </List>

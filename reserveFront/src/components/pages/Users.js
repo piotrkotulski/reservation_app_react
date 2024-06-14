@@ -1,5 +1,5 @@
-import React, {useState, useEffect} from 'react';
-import {ToastContainer, toast} from 'react-toastify';
+import React, { useState, useEffect } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {
     Container,
@@ -31,12 +31,12 @@ const Users = () => {
         lastName: '',
         email: '',
         phoneNumber: '',
-        groupName: '' // New field for user group
+        groupName: '' // Nowe pole dla grupy użytkownika
     });
 
     useEffect(() => {
         fetchUsers();
-        fetchGroups(); // Fetch groups from localStorage on component mount
+        fetchGroups(); // Pobierz grupy z localStorage przy montowaniu komponentu
     }, []);
 
     const fetchUsers = async () => {
@@ -45,11 +45,12 @@ const Users = () => {
             const data = await response.json();
             const usersWithGroup = data.map(user => {
                 const group = JSON.parse(sessionStorage.getItem(`userGroup-${user.UserId}`));
-                return group ? {...user, GroupName: group.name} : user;
+                return group ? { ...user, GroupName: group.name } : user;
             });
             setUsers(usersWithGroup);
+            console.log('Pobrani użytkownicy:', usersWithGroup);
         } catch (error) {
-            console.error('Error fetching users:', error);
+            console.error('Błąd podczas pobierania użytkowników:', error);
         }
     };
 
@@ -61,7 +62,7 @@ const Users = () => {
                 const result = await response.json();
                 const user = result.Table[0];
                 const group = JSON.parse(sessionStorage.getItem(`userGroup-${user.UserId}`));
-                console.log("Fetched user details: ", user);
+                console.log("Pobrane szczegóły użytkownika: ", user);
                 setCurrentUser({
                     userId: user.UserId,
                     firstName: user.FirstName,
@@ -71,10 +72,10 @@ const Users = () => {
                     groupName: group ? group.name : ''
                 });
             } else {
-                console.error('Failed to fetch user details');
+                console.error('Nie udało się pobrać szczegółów użytkownika');
             }
         } catch (error) {
-            console.error('Error fetching user details:', error);
+            console.error('Błąd podczas pobierania szczegółów użytkownika:', error);
         } finally {
             setLoading(false);
         }
@@ -82,16 +83,16 @@ const Users = () => {
 
     const fetchGroups = () => {
         const savedGroups = JSON.parse(localStorage.getItem('userGroups')) || [];
-        console.log("Fetched groups: ", savedGroups);
+        console.log("Pobrane grupy: ", savedGroups);
         setGroups(savedGroups);
     };
 
     const handleInputChange = (e) => {
-        setCurrentUser({...currentUser, [e.target.name]: e.target.value});
+        setCurrentUser({ ...currentUser, [e.target.name]: e.target.value });
     };
 
     const handleGroupChange = (e) => {
-        setCurrentUser({...currentUser, groupName: e.target.value});
+        setCurrentUser({ ...currentUser, groupName: e.target.value });
     };
 
     const handleOpen = (user) => {
@@ -99,12 +100,12 @@ const Users = () => {
             fetchUserDetails(user.UserId);
         } else {
             setCurrentUser({
-                userId: null, // Reset userId for new user
+                userId: null, // Resetowanie userId dla nowego użytkownika
                 firstName: '',
                 lastName: '',
                 email: '',
                 phoneNumber: '',
-                groupName: '' // Reset groupName for new user
+                groupName: '' // Resetowanie groupName dla nowego użytkownika
             });
         }
         setOpen(true);
@@ -125,23 +126,30 @@ const Users = () => {
             : 'http://localhost:5160/api/ReserveApp/CreateUser';
         const method = currentUser.userId ? 'PUT' : 'POST';
 
-        const body = {...currentUser};
+        const body = { ...currentUser };
         if (!body.userId) {
-            delete body.userId; // Usuwamy klucz userId, gdy dodajemy nowego użytkownika
+            delete body.userId; // Usuwanie klucza userId, gdy dodajemy nowego użytkownika
         }
 
         try {
             const response = await fetch(url, {
                 method: method,
-                headers: {'Content-Type': 'application/json'},
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
             });
             if (response.ok) {
+                const result = await response.json();
+                let newUser = result;
                 if (!currentUser.userId) {
-                    const newUser = await response.json();
-                    currentUser.userId = newUser.userId;
+                    newUser = result;
+                    console.log("Nowy użytkownik utworzony:", newUser);
+                    sessionStorage.setItem(`userGroup-${newUser.UserId}`, JSON.stringify({ name: currentUser.groupName }));
+                    setUsers(prevUsers => [...prevUsers, { ...newUser, GroupName: currentUser.groupName }]);
+                } else {
+                    console.log("Użytkownik zaktualizowany:", result);
+                    sessionStorage.setItem(`userGroup-${currentUser.userId}`, JSON.stringify({ name: currentUser.groupName }));
+                    setUsers(prevUsers => prevUsers.map(user => user.UserId === currentUser.userId ? { ...currentUser, GroupName: currentUser.groupName } : user));
                 }
-                sessionStorage.setItem(`userGroup-${currentUser.userId}`, JSON.stringify({name: currentUser.groupName}));
                 toast.success(`Użytkownik ${currentUser.userId ? 'zaktualizowany' : 'dodany'} pomyślnie`);
                 fetchUsers();  // Odświeżanie listy użytkowników
                 handleClose();
@@ -150,7 +158,7 @@ const Users = () => {
                 toast.error(`Nie udało się ${currentUser.userId ? 'zaktualizować' : 'dodać'} użytkownika: ${errorData.message}`);
             }
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Błąd:', error);
             toast.error('Wystąpił błąd podczas operacji dodawania/aktualizacji');
         }
     };
@@ -171,8 +179,7 @@ const Users = () => {
 
     return (
         <Container className="mt-5">
-            <ToastContainer position="top-right" autoClose={1000} hideProgressBar={false} newestOnTop={false}
-                            closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover/>
+            <ToastContainer position="top-right" autoClose={1000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
             <h1>Użytkownicy</h1>
             <Button variant="contained" color="primary" onClick={() => handleOpen(null)}>Dodaj Użytkownika</Button>
             <TableContainer component={Paper} className="mt-4">
@@ -184,18 +191,18 @@ const Users = () => {
                             <TableCell>Nazwisko</TableCell>
                             <TableCell>Email</TableCell>
                             <TableCell>Numer Telefonu</TableCell>
-                            <TableCell>Grupa</TableCell> {/* Add this */}
+                            <TableCell>Grupa</TableCell> {/* Dodano to */}
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {users.map(user => (
-                            <TableRow key={user.UserId} onClick={() => handleOpen(user)} style={{cursor: 'pointer'}}>
+                        {users.map((user) => (
+                            <TableRow key={user.UserId} onClick={() => handleOpen(user)} style={{ cursor: 'pointer' }}>
                                 <TableCell>{user.UserId}</TableCell>
                                 <TableCell>{user.FirstName}</TableCell>
                                 <TableCell>{user.LastName}</TableCell>
                                 <TableCell>{user.Email}</TableCell>
                                 <TableCell>{user.PhoneNumber}</TableCell>
-                                <TableCell>{user.GroupName}</TableCell> {/* Add this */}
+                                <TableCell>{user.GroupName}</TableCell> {/* Dodano to */}
                             </TableRow>
                         ))}
                     </TableBody>
@@ -214,14 +221,10 @@ const Users = () => {
                     p: 4
                 }}>
                     <h2>{currentUser.userId ? 'Edytuj użytkownika' : 'Dodaj nowego użytkownika'}</h2>
-                    <TextField fullWidth label="Imię" name="firstName" value={currentUser.firstName}
-                               onChange={handleInputChange} margin="normal"/>
-                    <TextField fullWidth label="Nazwisko" name="lastName" value={currentUser.lastName}
-                               onChange={handleInputChange} margin="normal"/>
-                    <TextField fullWidth label="Email" name="email" type="email" value={currentUser.email}
-                               onChange={handleInputChange} margin="normal"/>
-                    <TextField fullWidth label="Numer Telefonu" name="phoneNumber" type="tel"
-                               value={currentUser.phoneNumber} onChange={handleInputChange} margin="normal"/>
+                    <TextField fullWidth label="Imię" name="firstName" value={currentUser.firstName} onChange={handleInputChange} margin="normal" />
+                    <TextField fullWidth label="Nazwisko" name="lastName" value={currentUser.lastName} onChange={handleInputChange} margin="normal" />
+                    <TextField fullWidth label="Email" name="email" type="email" value={currentUser.email} onChange={handleInputChange} margin="normal" />
+                    <TextField fullWidth label="Numer Telefonu" name="phoneNumber" type="tel" value={currentUser.phoneNumber} onChange={handleInputChange} margin="normal" />
                     <FormControl fullWidth margin="normal">
                         <InputLabel id="group-label">Grupa</InputLabel>
                         <Select
@@ -238,12 +241,9 @@ const Users = () => {
                             ))}
                         </Select>
                     </FormControl>
-                    <Button variant="contained" color="primary"
-                            onClick={handleAddOrUpdateUser}>{currentUser.userId ? 'Zaktualizuj' : 'Dodaj'}</Button>
+                    <Button variant="contained" color="primary" onClick={handleAddOrUpdateUser}>{currentUser.userId ? 'Zaktualizuj' : 'Dodaj'}</Button>
                     {currentUser.userId && (
-                        <Button variant="contained" color="secondary"
-                                onClick={() => handleDeleteUser(currentUser.userId)}
-                                style={{marginLeft: '10px'}}>Usuń</Button>
+                        <Button variant="contained" color="secondary" onClick={() => handleDeleteUser(currentUser.userId)} style={{ marginLeft: '10px' }}>Usuń</Button>
                     )}
                 </Box>
             </Modal>
