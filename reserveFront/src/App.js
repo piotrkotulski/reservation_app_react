@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import './styles/global.scss';
 import NavigationBar from './components/views/Navbar';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import HomePage from "./components/pages/HomePage/HomePage";
 import Reports from './components/pages/Reports';
 import Reservations from './components/pages/Reservations';
 import Users from './components/pages/Users';
 import Settings from './components/pages/Settings/Settings';
-import { format, addMinutes } from 'date-fns';
+import {format, addMinutes} from 'date-fns';
 import styles from "./components/pages/HomePage/HomePage.module.scss";
 
 const App = () => {
@@ -71,7 +71,7 @@ const App = () => {
         if (reservation) {
             setSelectedReservation(reservation);
         } else {
-            setSelectedSlot({ courtId, time, endTime });
+            setSelectedSlot({courtId, time, endTime});
         }
     };
 
@@ -81,14 +81,30 @@ const App = () => {
     };
 
     const confirmReservation = async (clientName, phoneNumber, notes, multiSportCard, duration, groupName, userId) => {
+        const isAvailable = (courtId, startTime, endTime) => {
+            return reservations.every(res => {
+                if (res.CourtId === courtId && res.Date === selectedDate) {
+                    const resStartTime = new Date(`${selectedDate}T${res.StartTime}`);
+                    const resEndTime = new Date(`${selectedDate}T${res.EndTime}`);
+                    return (endTime <= resStartTime || startTime >= resEndTime);
+                }
+                return true;
+            });
+        };
+
         console.log("Confirming Reservation with Group: ", groupName);
         const startTime = new Date(`${selectedDate}T${selectedSlot.time}`);
         const endTime = new Date(startTime);
         endTime.setMinutes(startTime.getMinutes() + duration);
 
+        if (!isAvailable(selectedSlot.courtId, startTime, endTime)) {
+            alert("Court is already reserved at this time");
+            return;
+        }
+
         const reservationData = {
             CourtId: selectedSlot.courtId,
-            UserId: userId || 1,  // Upewnijmy się, że UserId jest poprawnie ustawiony
+            UserId: userId || 1,
             Date: selectedDate,
             StartTime: format(startTime, "HH:mm:ss"),
             EndTime: format(endTime, "HH:mm:ss"),
@@ -102,7 +118,7 @@ const App = () => {
         try {
             const response = await fetch(`${API_URL}api/ReserveApp/CreateReservation`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(reservationData),
             });
 
@@ -118,6 +134,7 @@ const App = () => {
         }
         handleCloseModal();
     };
+
 
     const updateReservation = async (reservationId, clientName, phoneNumber, notes, multiSportCard, duration, groupName, userId) => {
         console.log("Updating Reservation with Group: ", groupName);
@@ -141,7 +158,7 @@ const App = () => {
         try {
             const response = await fetch(`${API_URL}api/ReserveApp/UpdateReservation/${reservationId}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(reservationData),
             });
 
@@ -185,8 +202,10 @@ const App = () => {
             res.Date === selectedDate &&
             res.StartTime <= startTime &&
             res.EndTime > startTime
+            //((startTime > res.startTime && endTime >= res.endTime) || (startTime <= res.endTime && endTime < res.endTime))
         );
     };
+
 
     const times = [];
     for (let hour = openingHour; hour <= closingHour; hour++) {
@@ -202,10 +221,12 @@ const App = () => {
     const timeSlots = times.map(time => (
         <tr key={time}>
             <td className={styles.hourCell}>{time}</td>
-            {Array.from({ length: numCourts }, (_, i) => {
+            {Array.from({length: numCourts}, (_, i) => {
                 const courtId = i + 1;
                 const endTime = format(addMinutes(new Date(`1970-01-01T${time}`), duration), 'HH:mm');
                 const reservation = isReserved(courtId, time, endTime);
+                console.log(time);
+                //const reservation = !isAvailable(courtId, time);
                 const isTimeReserved = reservation != null;
 
                 let displayDetails = null;
@@ -226,6 +247,7 @@ const App = () => {
                     }
                 }
                 let reservationClass = 'available';
+                console.log(reservation);
                 if (isTimeReserved) {
                     reservationClass = 'reserved';
                     if (reservation.StartTime === time) {
@@ -264,7 +286,7 @@ const App = () => {
     return (
         <Router>
             <div className="App">
-                <NavigationBar />
+                <NavigationBar/>
                 <Routes>
                     <Route
                         path="/"
@@ -287,9 +309,9 @@ const App = () => {
                             />
                         }
                     />
-                    <Route path="/reports" element={<Reports />} />
-                    <Route path="/reservations" element={<Reservations />} />
-                    <Route path="/users" element={<Users />} />
+                    <Route path="/reports" element={<Reports/>}/>
+                    <Route path="/reservations" element={<Reservations/>}/>
+                    <Route path="/users" element={<Users/>}/>
                     <Route
                         path="/settings"
                         element={
