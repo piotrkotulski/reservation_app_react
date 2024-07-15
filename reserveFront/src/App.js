@@ -7,6 +7,8 @@ import Reports from './components/pages/Reports';
 import Reservations from './components/pages/Reservations';
 import Users from './components/pages/Users';
 import Settings from './components/pages/Settings/Settings';
+import Trainers from './components/pages/Trainers/Trainers';
+import Pricing from './components/pages/Pricing/Pricing';
 import {format, addMinutes} from 'date-fns';
 import styles from "./components/pages/HomePage/HomePage.module.scss";
 
@@ -23,6 +25,17 @@ const App = () => {
     const [closingHour, setClosingHour] = useState(22);
     const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
     const [userGroups, setUserGroups] = useState(JSON.parse(localStorage.getItem('userGroups')) || []);
+    const addUserGroup = (group) =>{
+        setUserGroups((state) => [...state, group]);
+    }
+
+    const deleteGroup = (id) => {
+        setUserGroups((state) => state.filter(group => group.id !== id));
+    }
+
+    const editGroup = (id, newName, newColor) => {
+        setUserGroups((state) => state.map(group => group.id === id ? {id, name: newName, color: newColor} : group));
+    }
 
     useEffect(() => {
         fetchReservations();
@@ -56,6 +69,7 @@ const App = () => {
                     StartTime: format(new Date('1970-01-01T' + reservation.StartTime), 'HH:mm'),
                     EndTime: format(new Date('1970-01-01T' + reservation.EndTime), 'HH:mm')
                 }));
+                console.log(formattedData);
                 setReservations(formattedData);
             } else {
                 console.error("Failed to fetch reservations");
@@ -80,13 +94,15 @@ const App = () => {
         setSelectedReservation(null);
     };
 
-    const confirmReservation = async (clientName, phoneNumber, notes, multiSportCard, duration, groupName, userId) => {
+    const confirmReservation = async (courtId, pickedHour, clientName, phoneNumber, notes, multiSportCard, duration, groupName, userId) => {
         const isAvailable = (courtId, startTime, endTime) => {
             return reservations.every(res => {
                 if (res.CourtId === courtId && res.Date === selectedDate) {
                     const resStartTime = new Date(`${selectedDate}T${res.StartTime}`);
                     const resEndTime = new Date(`${selectedDate}T${res.EndTime}`);
+                    console.log("ABC",resStartTime, resEndTime, startTime, endTime);
                     return (endTime <= resStartTime || startTime >= resEndTime);
+
                 }
                 return true;
             });
@@ -103,7 +119,8 @@ const App = () => {
         }
 
         const reservationData = {
-            CourtId: selectedSlot.courtId,
+            CourtId: courtId,
+            PickedHour: pickedHour,
             UserId: userId || 1,
             Date: selectedDate,
             StartTime: format(startTime, "HH:mm:ss"),
@@ -136,14 +153,16 @@ const App = () => {
     };
 
 
-    const updateReservation = async (reservationId, clientName, phoneNumber, notes, multiSportCard, duration, groupName, userId) => {
+    const updateReservation = async (courtId, pickedHour, reservationId, clientName, phoneNumber, notes, multiSportCard, duration, groupName, userId) => {
         console.log("Updating Reservation with Group: ", groupName);
         const startTime = new Date(`${selectedDate}T${selectedSlot ? selectedSlot.time : selectedReservation.StartTime}`);
         const endTime = new Date(startTime);
         endTime.setMinutes(startTime.getMinutes() + duration);
 
         const reservationData = {
-            CourtId: selectedSlot ? selectedSlot.courtId : selectedReservation.CourtId,
+            //CourtId: selectedSlot ? selectedSlot.courtId : selectedReservation.CourtId,
+            CourtId: courtId,
+            PickedHour: pickedHour,
             UserId: userId || selectedReservation.UserId,
             Date: selectedDate,
             StartTime: format(startTime, "HH:mm:ss"),
@@ -177,7 +196,8 @@ const App = () => {
 
     const confirmDelete = async (reservation) => {
         try {
-            const response = await fetch(`${API_URL}api/ReserveApp/DeleteReservation/${reservation.id}`, {
+            console.log(reservation);
+            const response = await fetch(`${API_URL}api/ReserveApp/DeleteReservation/${reservation.ReservationId}`, {
                 method: 'DELETE'
             });
 
@@ -310,7 +330,10 @@ const App = () => {
                         }
                     />
                     <Route path="/reports" element={<Reports/>}/>
-                    <Route path="/reservations" element={<Reservations/>}/>
+                    <Route path="/reservations" element={<Reservations
+                        confirmDelete={confirmDelete}
+                        selectedReservation={selectedReservation}
+                    />}/>
                     <Route path="/users" element={<Users/>}/>
                     <Route
                         path="/settings"
@@ -324,9 +347,14 @@ const App = () => {
                                 setClosingHour={setClosingHour}
                                 userGroups={userGroups}
                                 handleSaveGroups={handleSaveGroups}
+                                adduserGroup={addUserGroup}
+                                deleteGroup={deleteGroup}
+                                editGroup={editGroup}
                             />
                         }
                     />
+                    <Route path="/trainers" element={<Trainers API_URL={API_URL} />} />
+                    <Route path="/pricing" element={<Pricing API_URL={API_URL} />} />
                 </Routes>
             </div>
         </Router>

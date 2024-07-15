@@ -1,7 +1,18 @@
-import React, { useState } from 'react';
-import { ChromePicker } from 'react-color';
-import { TextField, Button, Typography, Box, List, ListItem, ListItemText, ListItemIcon, IconButton } from '@mui/material';
-import { Add, Save, Edit, Delete } from '@mui/icons-material';
+import React, {useState} from 'react';
+import {ChromePicker} from 'react-color';
+import {
+    TextField,
+    Button,
+    Typography,
+    Box,
+    List,
+    ListItem,
+    ListItemText,
+    ListItemIcon,
+    IconButton
+} from '@mui/material';
+import {Add, Save, Edit, Delete} from '@mui/icons-material';
+import {nanoid} from 'nanoid'
 import styles from './Settings.module.scss';
 
 const Settings = ({
@@ -11,7 +22,10 @@ const Settings = ({
                       closingHour,
                       setOpeningHour,
                       setClosingHour,
-                      handleSaveGroups
+                      handleSaveGroups,
+                      adduserGroup,
+                      deleteGroup,
+                      editGroup
                   }) => {
     const [userGroups, setUserGroups] = useState(JSON.parse(localStorage.getItem('userGroups')) || []);
     const [groupName, setGroupName] = useState('');
@@ -19,7 +33,8 @@ const Settings = ({
     const [editingIndex, setEditingIndex] = useState(null);
 
     const handleAddGroup = () => {
-        const newGroup = { name: groupName, color: groupColor };
+        const newGroup = {id: nanoid(), name: groupName, color: groupColor};
+        adduserGroup(newGroup);
         const updatedGroups = editingIndex !== null ? userGroups.map((group, index) => index === editingIndex ? newGroup : group) : [...userGroups, newGroup];
         setUserGroups(updatedGroups);
         localStorage.setItem('userGroups', JSON.stringify(updatedGroups));
@@ -28,13 +43,15 @@ const Settings = ({
         setEditingIndex(null);
     };
 
-    const handleEditGroup = (index) => {
+    const handleEditGroup = (index, id) => {
+        editGroup(id, groupName, groupColor);
         setGroupName(userGroups[index].name);
         setGroupColor(userGroups[index].color);
         setEditingIndex(index);
     };
 
-    const handleDeleteGroup = (index) => {
+    const handleDeleteGroup = (index, id) => {
+        deleteGroup(id)
         const updatedGroups = userGroups.filter((_, i) => i !== index);
         setUserGroups(updatedGroups);
         localStorage.setItem('userGroups', JSON.stringify(updatedGroups));
@@ -56,7 +73,7 @@ const Settings = ({
                     type="number"
                     value={numCourts}
                     onChange={(e) => setNumCourts(parseInt(e.target.value))}
-                    inputProps={{ min: 1 }}
+                    inputProps={{min: 1}}
                     fullWidth
                     margin="normal"
                 />
@@ -67,7 +84,7 @@ const Settings = ({
                     type="number"
                     value={openingHour}
                     onChange={(e) => setOpeningHour(parseInt(e.target.value))}
-                    inputProps={{ min: 0, max: 23 }}
+                    inputProps={{min: 0, max: 23}}
                     fullWidth
                     margin="normal"
                 />
@@ -76,7 +93,7 @@ const Settings = ({
                     type="number"
                     value={closingHour}
                     onChange={(e) => setClosingHour(parseInt(e.target.value))}
-                    inputProps={{ min: 0, max: 23 }}
+                    inputProps={{min: 0, max: 23}}
                     fullWidth
                     margin="normal"
                 />
@@ -100,16 +117,16 @@ const Settings = ({
                     <Button
                         variant="contained"
                         color="primary"
-                        startIcon={<Add />}
+                        startIcon={<Add/>}
                         onClick={handleAddGroup}
-                        sx={{ mr: 2 }}
+                        sx={{mr: 2}}
                     >
                         {editingIndex !== null ? 'Zaktualizuj grupę' : 'Dodaj kolejny'}
                     </Button>
                     <Button
                         variant="contained"
                         color="secondary"
-                        startIcon={<Save />}
+                        startIcon={<Save/>}
                         onClick={handleSave}
                     >
                         Zapisz
@@ -120,21 +137,21 @@ const Settings = ({
                     <Typography variant="h6" gutterBottom>Lista grup</Typography>
                     <List>
                         {userGroups.map((group, index) => (
-                            <ListItem key={index}>
+                            <ListItem key={group.id}>
                                 <ListItemIcon>
                                     <div style={{
                                         backgroundColor: group.color,
                                         width: 24,
                                         height: 24,
                                         borderRadius: '50%'
-                                    }} />
+                                    }}/>
                                 </ListItemIcon>
-                                <ListItemText primary={group.name} />
-                                <IconButton onClick={() => handleEditGroup(index)}>
-                                    <Edit />
+                                <ListItemText primary={group.name}/>
+                                <IconButton onClick={() => handleEditGroup(index, group.id)}>
+                                    <Edit/>
                                 </IconButton>
-                                <IconButton onClick={() => handleDeleteGroup(index)}>
-                                    <Delete />
+                                <IconButton onClick={() => handleDeleteGroup(index, group.id)}>
+                                    <Delete/>
                                 </IconButton>
                             </ListItem>
                         ))}

@@ -1,43 +1,84 @@
-import React, { useState, useEffect, useReducer } from 'react';
-import { Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Button, Grid, Paper, Modal, Box, Select, MenuItem, FormControl, InputLabel, Checkbox, FormControlLabel } from '@mui/material';
-import { debounce } from 'lodash';
+import React, {useState, useEffect, useReducer} from 'react';
+import {
+    Container,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    TextField,
+    Button,
+    Grid,
+    Paper,
+    Modal,
+    Box,
+    Select,
+    MenuItem,
+    FormControl,
+    InputLabel,
+    Checkbox,
+    FormControlLabel
+} from '@mui/material';
+import {debounce} from 'lodash';
 import Autocomplete from '@mui/material/Autocomplete';
 import styles from "././HomePage/HomePage.module.scss";
+import EditReservationModal from "../modals/EditReservationModal";
 
 
 const filterReducer = (state, action) => {
     switch (action.type) {
         case 'SET_COURT_ID':
-            return { ...state, courtId: action.courtId };
+            return {...state, courtId: action.courtId};
         case 'SET_USER_ID':
-            return { ...state, userId: action.userId };
+            return {...state, userId: action.userId};
         case 'SET_DATE':
-            return { ...state, date: action.date };
+            return {...state, date: action.date};
         // Add new cases for new columns
         case 'SET_START_TIME':
-            return { ...state, startTime: action.startTime };
+            return {...state, startTime: action.startTime};
         case 'SET_END_TIME':
-            return { ...state, endTime: action.endTime };
+            return {...state, endTime: action.endTime};
         case 'SET_CLIENT_NAME':
-            return { ...state, clientName: action.clientName };
+            return {...state, clientName: action.clientName};
         case 'SET_PHONE_NUMBER':
-            return { ...state, phoneNumber: action.phoneNumber };
+            return {...state, phoneNumber: action.phoneNumber};
         case 'SET_NOTES':
-            return { ...state, notes: action.notes };
+            return {...state, notes: action.notes};
         case 'SET_MULTISPORT_CARD':
-            return { ...state, multiSportCard: action.multiSportCard };
+            return {...state, multiSportCard: action.multiSportCard};
         case 'CLEAR':
-            return { courtId: '', userId: '', date: '', startTime: '', endTime: '', clientName: '', phoneNumber: '', notes: '', multiSportCard: '' };
+            return {
+                courtId: '',
+                userId: '',
+                date: '',
+                startTime: '',
+                endTime: '',
+                clientName: '',
+                phoneNumber: '',
+                notes: '',
+                multiSportCard: ''
+            };
         default:
             return state;
     }
 };
 
-const Reservations = () => {
+const Reservations = ({confirmDelete}) => {
     const API_URL = "http://localhost:5160/";
     const [reservations, setReservations] = useState([]);
     const [filteredReservations, setFilteredReservations] = useState([]);
-    const [filter, dispatch] = useReducer(filterReducer, { courtId: '', userId: '', date: '', startTime: '', endTime: '', clientName: '', phoneNumber: '', notes: '', multiSportCard: '' });
+    const [filter, dispatch] = useReducer(filterReducer, {
+        courtId: '',
+        userId: '',
+        date: '',
+        startTime: '',
+        endTime: '',
+        clientName: '',
+        phoneNumber: '',
+        notes: '',
+        multiSportCard: ''
+    });
     const [selectedReservation, setSelectedReservation] = useState(null);
     const [userGroups, setUserGroups] = useState(JSON.parse(localStorage.getItem('userGroups')) || []);
     const [duration, setDuration] = useState(30);
@@ -115,8 +156,8 @@ const Reservations = () => {
     };
 
     const debounceFilterChange = debounce((name, value) => {
-        dispatch({ type: `SET_${name.toUpperCase()}`, [name]: value });
-        applyFilter({ ...filter, [name]: value });
+        dispatch({type: `SET_${name.toUpperCase()}`, [name]: value});
+        applyFilter({...filter, [name]: value});
     }, 500);
 
     const handleFilterChange = (e) => {
@@ -142,7 +183,7 @@ const Reservations = () => {
     };
 
     const clearFilters = () => {
-        dispatch({ type: 'CLEAR' });
+        dispatch({type: 'CLEAR'});
         setFilteredReservations(reservations);
     };
 
@@ -177,14 +218,14 @@ const Reservations = () => {
         try {
             const response = await fetch(`${API_URL}api/ReserveApp/UpdateReservation/${selectedReservation.ReservationId}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(reservationData),
             });
 
             if (response.ok) {
                 console.log("Reservation updated successfully with group: ", selectedGroup);
                 const updatedReservations = reservations.map(reservation =>
-                    reservation.ReservationId === selectedReservation.ReservationId ? { ...reservation, ...reservationData } : reservation
+                    reservation.ReservationId === selectedReservation.ReservationId ? {...reservation, ...reservationData} : reservation
                 );
                 setReservations(updatedReservations);
                 setFilteredReservations(updatedReservations);
@@ -284,10 +325,12 @@ const Reservations = () => {
                                 <TableCell>
                                     <Grid container spacing={1}>
                                         <Grid item>
-                                            <Button variant="contained" color="primary" onClick={() => handleOpenEditModal(reservation)}>Edytuj</Button>
+                                            <Button variant="contained" color="primary"
+                                                    onClick={() => handleOpenEditModal(reservation)}>Edytuj</Button>
                                         </Grid>
                                         <Grid item>
-                                            <Button variant="contained" color="secondary" onClick={() => handleDeleteReservation(reservation.ReservationId)}>Usuń</Button>
+                                            <Button variant="contained" color="secondary"
+                                                    onClick={() => handleDeleteReservation(reservation.ReservationId)}>Usuń</Button>
                                         </Grid>
                                     </Grid>
                                 </TableCell>
@@ -296,96 +339,118 @@ const Reservations = () => {
                     </TableBody>
                 </Table>
             </TableContainer>
+            <EditReservationModal open={open}
+                                  handleCloseModal={handleCloseModal}
+                                  selectedReservation={selectedReservation}
+                                  duration={duration}
+                                  setDuration={setDuration}
+                                  filteredUserList={filteredUserList}
+                                  clientName={clientName}
+                                  handleNameChange={handleNameChange}
+                                  handleUserSelect={handleUserSelect}
+                                  phoneNumber={phoneNumber}
+                                  setPhoneNumber={setPhoneNumber}
+                                  selectedGroup={selectedGroup}
+                                  setSelectedGroup={setSelectedGroup}
+                                  userGroups={userGroups}
+                                  notes={notes}
+                                  setNotes={setNotes}
+                                  multiSportCard={multiSportCard}
+                                  setMultiSportCard={setMultiSportCard}
+                                  handleUpdateReservation={handleUpdateReservation}
+            confirmDelete={confirmDelete}/>
 
-            <Modal open={open} onClose={handleCloseModal}>
-                <Box className={styles.modalContent}>
-                    <h2>Edytuj Rezerwację</h2>
-                    <p>Kort: {selectedReservation?.CourtId}, Godzina: {selectedReservation?.StartTime}</p>
 
-                    <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
-                        <InputLabel id="duration-select-label">Czas trwania</InputLabel>
-                        <Select
-                            className={styles.durationSelect}
-                            labelId="duration-select-label"
-                            id="duration-select"
-                            value={duration.toString()}
-                            label="Czas trwania"
-                            onChange={e => setDuration(Number(e.target.value))}
-                        >
-                            <MenuItem value={30}>30 minut</MenuItem>
-                            <MenuItem value={60}>1 godzina</MenuItem>
-                            <MenuItem value={90}>1 godzina 30 minut</MenuItem>
-                            <MenuItem value={120}>2 godziny</MenuItem>
-                        </Select>
-                    </FormControl>
 
-                    <Autocomplete
-                        freeSolo
-                        options={filteredUserList}
-                        getOptionLabel={(option) => `${option.FirstName} ${option.LastName}`}
-                        onChange={handleUserSelect}
-                        inputValue={clientName}
-                        onInputChange={handleNameChange}
-                        renderInput={(params) => (
-                            <TextField
-                                {...params}
-                                label="Imię i nazwisko"
-                                fullWidth
-                                margin="normal"
-                                autoComplete="off"
-                            />
-                        )}
-                    />
+            {/*<Modal open={open} onClose={handleCloseModal}>*/}
+            {/*    <Box className={styles.modalContent}>*/}
+            {/*        <h2>Edytuj Rezerwację</h2>*/}
+            {/*        <p>Kort: {selectedReservation?.CourtId}, Godzina: {selectedReservation?.StartTime}</p>*/}
 
-                    <TextField
-                        label="Telefon"
-                        value={phoneNumber}
-                        onChange={(e) => setPhoneNumber(e.target.value)}
-                        fullWidth
-                        margin="normal"
-                    />
+            {/*        <FormControl sx={{ m: 1, minWidth: 120 }} size="small">*/}
+            {/*            <InputLabel id="duration-select-label">Czas trwania</InputLabel>*/}
+            {/*            <Select*/}
+            {/*                className={styles.durationSelect}*/}
+            {/*                labelId="duration-select-label"*/}
+            {/*                id="duration-select"*/}
+            {/*                value={duration.toString()}*/}
+            {/*                label="Czas trwania"*/}
+            {/*                onChange={e => setDuration(Number(e.target.value))}*/}
+            {/*            >*/}
+            {/*                <MenuItem value={30}>30 minut</MenuItem>*/}
+            {/*                <MenuItem value={60}>1 godzina</MenuItem>*/}
+            {/*                <MenuItem value={90}>1 godzina 30 minut</MenuItem>*/}
+            {/*                <MenuItem value={120}>2 godziny</MenuItem>*/}
+            {/*            </Select>*/}
+            {/*        </FormControl>*/}
 
-                    <FormControl fullWidth margin="normal">
-                        <InputLabel id="group-select-label">Grupa</InputLabel>
-                        <Select
-                            labelId="group-select-label"
-                            id="group-select"
-                            value={selectedGroup}
-                            label="Grupa"
-                            onChange={(e) => setSelectedGroup(e.target.value)}
-                        >
-                            {userGroups.map((group, index) => (
-                                <MenuItem key={index} value={group.name}>
-                                    {group.name}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+            {/*        <Autocomplete*/}
+            {/*            freeSolo*/}
+            {/*            options={filteredUserList}*/}
+            {/*            getOptionLabel={(option) => `${option.FirstName} ${option.LastName}`}*/}
+            {/*            onChange={handleUserSelect}*/}
+            {/*            inputValue={clientName}*/}
+            {/*            onInputChange={handleNameChange}*/}
+            {/*            renderInput={(params) => (*/}
+            {/*                <TextField*/}
+            {/*                    {...params}*/}
+            {/*                    label="Imię i nazwisko"*/}
+            {/*                    fullWidth*/}
+            {/*                    margin="normal"*/}
+            {/*                    autoComplete="off"*/}
+            {/*                />*/}
+            {/*            )}*/}
+            {/*        />*/}
 
-                    <TextField
-                        label="Uwagi"
-                        value={notes}
-                        onChange={(e) => setNotes(e.target.value)}
-                        fullWidth
-                        margin="normal"
-                        multiline
-                    />
+            {/*        <TextField*/}
+            {/*            label="Telefon"*/}
+            {/*            value={phoneNumber}*/}
+            {/*            onChange={(e) => setPhoneNumber(e.target.value)}*/}
+            {/*            fullWidth*/}
+            {/*            margin="normal"*/}
+            {/*        />*/}
 
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={multiSportCard}
-                                onChange={(e) => setMultiSportCard(e.target.checked)}
-                            />
-                        }
-                        label="Karta Multisport"
-                    />
+            {/*        <FormControl fullWidth margin="normal">*/}
+            {/*            <InputLabel id="group-select-label">Grupa</InputLabel>*/}
+            {/*            <Select*/}
+            {/*                labelId="group-select-label"*/}
+            {/*                id="group-select"*/}
+            {/*                value={selectedGroup}*/}
+            {/*                label="Grupa"*/}
+            {/*                onChange={(e) => setSelectedGroup(e.target.value)}*/}
+            {/*            >*/}
+            {/*                {userGroups.map((group, index) => (*/}
+            {/*                    <MenuItem key={index} value={group.name}>*/}
+            {/*                        {group.name}*/}
+            {/*                    </MenuItem>*/}
+            {/*                ))}*/}
+            {/*            </Select>*/}
+            {/*        </FormControl>*/}
 
-                    <Button className={styles.successBtt} onClick={handleUpdateReservation}>Zaktualizuj</Button>
+            {/*        <TextField*/}
+            {/*            label="Uwagi"*/}
+            {/*            value={notes}*/}
+            {/*            onChange={(e) => setNotes(e.target.value)}*/}
+            {/*            fullWidth*/}
+            {/*            margin="normal"*/}
+            {/*            multiline*/}
+            {/*        />*/}
 
-                    <Button className={styles.deleteBtt} onClick={handleCloseModal}>Anuluj</Button>
-                </Box>
-            </Modal>
+            {/*        <FormControlLabel*/}
+            {/*            control={*/}
+            {/*                <Checkbox*/}
+            {/*                    checked={multiSportCard}*/}
+            {/*                    onChange={(e) => setMultiSportCard(e.target.checked)}*/}
+            {/*                />*/}
+            {/*            }*/}
+            {/*            label="Karta Multisport"*/}
+            {/*        />*/}
+
+            {/*        <Button className={styles.successBtt} onClick={handleUpdateReservation}>Zaktualizuj</Button>*/}
+
+            {/*        <Button className={styles.deleteBtt} onClick={handleCloseModal}>Anuluj</Button>*/}
+            {/*    </Box>*/}
+            {/*</Modal>*/}
         </Container>
     );
 }

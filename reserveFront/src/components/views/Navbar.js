@@ -24,6 +24,8 @@ import ReportIcon from '@mui/icons-material/Assessment';
 import BookOnlineIcon from '@mui/icons-material/BookOnline';
 import PeopleIcon from '@mui/icons-material/People';
 import SettingsIcon from '@mui/icons-material/Settings';
+import PricingIcon from '@mui/icons-material/AttachMoney'; // Ikona dla Pricing
+import TrainerIcon from '@mui/icons-material/Sports'; // Ikona dla Trainers
 
 const drawerWidth = 240;
 
@@ -109,6 +111,8 @@ export default function MiniDrawer() {
         { text: 'Reservations', icon: <BookOnlineIcon />, path: '/reservations' },
         { text: 'Users', icon: <PeopleIcon />, path: '/users' },
         { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
+        { text: 'Pricing', icon: <PricingIcon />, path: '/pricing' }, // Dodany element Pricing
+        { text: 'Trainers', icon: <TrainerIcon />, path: '/trainers' }, // Dodany element Trainers
     ];
 
     return (
@@ -141,7 +145,7 @@ export default function MiniDrawer() {
                 </DrawerHeader>
                 <Divider />
                 <List>
-                    {menuItems.map((item, index) => (
+                    {menuItems.map((item) => (
                         <ListItem key={item.text} disablePadding sx={{ display: 'block' }}>
                             <ListItemButton
                                 component={Link}

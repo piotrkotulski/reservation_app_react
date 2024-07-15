@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from "./HomePage.module.scss";
 import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
@@ -22,17 +22,25 @@ const HomePage = ({
                       confirmDelete,
                       selectedDate,
                       setSelectedDate,
-                      userGroups // make sure this is passed as a prop
+                      userGroups
                   }) => {
     const [duration, setDuration] = useState(30);
     const [multiSportCard, setMultiSportCard] = useState(false);
     const [clientName, setClientName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
+    const [email, setEmail] = useState('');
     const [notes, setNotes] = useState('');
     const [userData, setUserData] = useState({});
     const [userList, setUserList] = useState([]);
     const [filteredUserList, setFilteredUserList] = useState([]);
     const [selectedGroup, setSelectedGroup] = useState('');
+    const [courtId, setCourtId] = useState('');
+    const [pickedHour, setPickedHour] = useState('');
+    const [price, setPrice] = useState(0);
+    const [paymentStatus, setPaymentStatus] = useState(false);
+    const [changePrice, setChangePrice] = useState(false);
+    const [selectedTrainer, setSelectedTrainer] = useState(null);
+    const [trainers, setTrainers] = useState([]);
 
     useEffect(() => {
         if (selectedReservation) {
@@ -42,14 +50,28 @@ const HomePage = ({
             );
             setClientName(selectedReservation.ClientName);
             setPhoneNumber(selectedReservation.PhoneNumber);
+            setEmail(selectedReservation.Email);
             setNotes(selectedReservation.Notes);
             setMultiSportCard(selectedReservation.MultiSportCard);
             setSelectedGroup(selectedReservation.GroupName || '');
+            setCourtId(selectedReservation.CourtId);
+            setPickedHour(selectedReservation.StartTime);
+            setPrice(selectedReservation.Price || 0);
+            setPaymentStatus(selectedReservation.PaymentStatus || false);
+            setSelectedTrainer(selectedReservation.TrainerId || null);
         }
     }, [selectedReservation]);
 
     useEffect(() => {
+        if (selectedSlot) {
+            setPickedHour(selectedSlot.time);
+            setCourtId(selectedSlot.courtId);
+        }
+    }, [selectedSlot]);
+
+    useEffect(() => {
         fetchUsers();
+        fetchTrainers();
     }, []);
 
     const fetchUsers = async () => {
@@ -59,6 +81,16 @@ const HomePage = ({
             setUserList(users);
         } catch (error) {
             console.error("Error fetching user data:", error);
+        }
+    };
+
+    const fetchTrainers = async () => {
+        try {
+            const response = await fetch(`${API_URL}api/ReserveApp/GetTrainers`);
+            const trainers = await response.json();
+            setTrainers(trainers);
+        } catch (error) {
+            console.error("Error fetching trainers:", error);
         }
     };
 
@@ -80,23 +112,22 @@ const HomePage = ({
         if (user) {
             setClientName(`${user.FirstName} ${user.LastName}`);
             setPhoneNumber(user.PhoneNumber);
+            //setEmail(user.Email);
             setUserData(user);
             setSelectedGroup(user.GroupName || '');
         }
     };
 
-    const handleDateChange = (event) => {
-        setSelectedDate(event.target.value);
-    };
 
+    // do dodania pole email po dodaniu w bazie
     const handleConfirmReservation = () => {
         console.log("Confirming Reservation with Group: ", selectedGroup);
-        confirmReservation(clientName, phoneNumber, notes, multiSportCard, duration, selectedGroup);
+        confirmReservation(courtId, pickedHour, clientName, phoneNumber, notes, multiSportCard, duration, selectedGroup, selectedTrainer, price, paymentStatus);
     };
 
     const handleUpdateReservation = () => {
         console.log("Updating Reservation with Group: ", selectedGroup);
-        updateReservation(selectedReservation.ReservationId, clientName, phoneNumber, notes, multiSportCard, duration, selectedGroup);
+        updateReservation(courtId, pickedHour, selectedReservation.ReservationId, clientName, phoneNumber, notes, multiSportCard, duration, selectedGroup, selectedTrainer, price, paymentStatus);
     };
 
     return (
@@ -106,8 +137,8 @@ const HomePage = ({
                     label="Wybierz datę"
                     type="date"
                     value={selectedDate}
-                    onChange={handleDateChange}
-                    InputLabelProps={{shrink: true}}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    InputLabelProps={{ shrink: true }}
                     fullWidth
                     margin="normal"
                 />
@@ -123,13 +154,30 @@ const HomePage = ({
                 <tbody>{timeSlots}</tbody>
             </table>
 
+            {/* MODAL */}
+
             {selectedSlot && (
                 <div className={styles.modal}>
                     <div className={styles.modalContent}>
                         <h2>Potwierdź rezerwację</h2>
-                        <p>Kort: {selectedSlot.court}, Godzina: {selectedSlot.time}</p>
+                        <p>
+                            <TextField
+                                label="Kort"
+                                value={courtId}
+                                onChange={(e) => setCourtId(e.target.value)}
+                                fullWidth
+                                margin="normal"
+                            />
+                            <TextField
+                                label="Godzina"
+                                value={pickedHour}
+                                onChange={(e) => setPickedHour(e.target.value)}
+                                fullWidth
+                                margin="normal"
+                            />
+                        </p>
 
-                        <FormControl sx={{m: 1, minWidth: 120}} size="small">
+                        <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
                             <InputLabel id="duration-select-label">Czas trwania</InputLabel>
                             <Select
                                 className={styles.durationSelect}
@@ -172,6 +220,14 @@ const HomePage = ({
                             margin="normal"
                         />
 
+                        <TextField
+                            label="Email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            fullWidth
+                            margin="normal"
+                        />
+
                         <FormControl fullWidth margin="normal">
                             <InputLabel id="group-select-label">Grupa</InputLabel>
                             <Select
@@ -207,6 +263,46 @@ const HomePage = ({
                             }
                             label="Karta Multisport"
                         />
+
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={changePrice}
+                                    onChange={(e) => setChangePrice(e.target.checked)}
+                                />
+                            }
+                            label="Zmień cenę"
+                        />
+
+                        {changePrice && (
+                            <TextField
+                                label="Cena"
+                                value={price}
+                                onChange={(e) => setPrice(e.target.value)}
+                                fullWidth
+                                margin="normal"
+                                type="number"
+                            />
+                        )}
+
+                        <p>Status płatności: {paymentStatus ? 'Opłacone' : 'Nieopłacone'}</p>
+
+                        <FormControl fullWidth margin="normal">
+                            <InputLabel id="trainer-select-label">Trener</InputLabel>
+                            <Select
+                                labelId="trainer-select-label"
+                                id="trainer-select"
+                                value={selectedTrainer}
+                                label="Trener"
+                                onChange={(e) => setSelectedTrainer(e.target.value)}
+                            >
+                                {trainers.map((trainer, index) => (
+                                    <MenuItem key={index} value={trainer.TrainerId}>
+                                        {trainer.FirstName} {trainer.LastName}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
 
                         <Button className={styles.successBtt} onClick={handleConfirmReservation}>Potwierdź</Button>
 
@@ -219,9 +315,16 @@ const HomePage = ({
                 <div className={styles.modal}>
                     <div className={styles.modalContent}>
                         <h2>Edytuj Rezerwację</h2>
-                        <p>Kort: {selectedReservation.CourtId}, Godzina: {selectedReservation.StartTime}</p>
+                        <TextField
+                            label="Kort"
+                            value={courtId}
+                            onChange={(e) => setCourtId(e.target.value)}
+                            fullWidth
+                            margin="normal"
+                        />
+                        <p> Godzina: {selectedReservation.StartTime} </p>
 
-                        <FormControl sx={{m: 1, minWidth: 120}} size="small">
+                        <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
                             <InputLabel id="duration-select-label">Czas trwania</InputLabel>
                             <Select
                                 className={styles.durationSelect}
@@ -264,6 +367,14 @@ const HomePage = ({
                             margin="normal"
                         />
 
+                        <TextField
+                            label="Email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            fullWidth
+                            margin="normal"
+                        />
+
                         <FormControl fullWidth margin="normal">
                             <InputLabel id="group-select-label">Grupa</InputLabel>
                             <Select
@@ -300,10 +411,49 @@ const HomePage = ({
                             label="Karta Multisport"
                         />
 
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={changePrice}
+                                    onChange={(e) => setChangePrice(e.target.checked)}
+                                />
+                            }
+                            label="Zmień cenę"
+                        />
+
+                        {changePrice && (
+                            <TextField
+                                label="Cena"
+                                value={price}
+                                onChange={(e) => setPrice(e.target.value)}
+                                fullWidth
+                                margin="normal"
+                                type="number"
+                            />
+                        )}
+
+                        <p>Status płatności: {paymentStatus ? 'Opłacone' : 'Nieopłacone'}</p>
+
+                        <FormControl fullWidth margin="normal">
+                            <InputLabel id="trainer-select-label">Trener</InputLabel>
+                            <Select
+                                labelId="trainer-select-label"
+                                id="trainer-select"
+                                value={selectedTrainer}
+                                label="Trener"
+                                onChange={(e) => setSelectedTrainer(e.target.value)}
+                            >
+                                {trainers.map((trainer, index) => (
+                                    <MenuItem key={index} value={trainer.TrainerId}>
+                                        {trainer.FirstName} {trainer.LastName}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+
                         <Button className={styles.successBtt} onClick={handleUpdateReservation}>Zaktualizuj</Button>
 
-                        <Button className={styles.deleteBtt} onClick={() => confirmDelete(selectedReservation)}>Usuń
-                            Rezerwację</Button>
+                        <Button className={styles.deleteBtt} onClick={() => confirmDelete(selectedReservation)}>Usuń Rezerwację</Button>
 
                         <Button className={styles.deleteBtt} onClick={handleCloseModal}>Anuluj</Button>
                     </div>
