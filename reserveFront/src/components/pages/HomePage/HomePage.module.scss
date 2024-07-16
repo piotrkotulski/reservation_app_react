@@ -1,5 +1,58 @@
 @import "../../../styles/settings";
 
+.header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.datePickerSection {
+  display: flex;
+  align-items: center;
+
+  button {
+    margin: 0 10px;
+  }
+}
+
+.quickActions {
+  display: flex;
+  align-items: center;
+}
+
+.legend {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+
+  h3 {
+    margin-bottom: 10px;
+  }
+
+  ul {
+    display: flex;
+    list-style-type: none;
+    padding: 0;
+
+    li {
+      display: flex;
+      align-items: center;
+      margin: 0 20px;
+
+      .legendCircle {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.7), rgba(0, 0, 0, 0.1));
+      }
+    }
+  }
+}
+
 .dateBox {
   display: flex;
   justify-content: center;
@@ -17,8 +70,6 @@
   background-color: rgba(0, 0, 0, 0.4);
 }
 
-
-/* Styl dla przycisków wewnątrz modala */
 .modalContent {
   background-color: #fefefe;
   margin: 15% auto;
@@ -34,7 +85,6 @@
     &:hover {
       background-color: $color-light;
       color: $color-success;
-
     }
   }
 
@@ -76,12 +126,10 @@
   min-width: 185px;
 }
 
-
 .hourCell {
   width: 150px;
   text-align: center;
 }
-
 
 .userList {
   list-style: none;
