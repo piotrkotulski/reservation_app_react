@@ -9,6 +9,10 @@ import TextField from '@mui/material/TextField';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Autocomplete from '@mui/material/Autocomplete';
+import IconButton from '@mui/material/IconButton';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import TodayIcon from '@mui/icons-material/Today';
 
 const HomePage = ({
                       API_URL,
@@ -118,6 +122,22 @@ const HomePage = ({
         }
     };
 
+    const handleDateChange = (event) => {
+        setSelectedDate(event.target.value);
+    };
+
+    const handleNextDay = () => {
+        setSelectedDate(new Date(new Date(selectedDate).getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
+    };
+
+    const handlePreviousDay = () => {
+        setSelectedDate(new Date(new Date(selectedDate).getTime() - 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
+    };
+
+    const handleToday = () => {
+        setSelectedDate(new Date().toISOString().split('T')[0]);
+    };
+
 
     // do dodania pole email po dodaniu w bazie
     const handleConfirmReservation = () => {
@@ -132,16 +152,40 @@ const HomePage = ({
 
     return (
         <div>
-            <div className={styles.dateBox}>
-                <TextField
-                    label="Wybierz datę"
-                    type="date"
-                    value={selectedDate}
-                    onChange={(e) => setSelectedDate(e.target.value)}
-                    InputLabelProps={{ shrink: true }}
-                    fullWidth
-                    margin="normal"
-                />
+            <div className={styles.header}>
+                <div className={styles.datePickerSection}>
+                    <IconButton onClick={handlePreviousDay}>
+                        <RemoveIcon />
+                    </IconButton>
+                    <TextField
+                        label="Wybierz datę"
+                        type="date"
+                        value={selectedDate}
+                        onChange={handleDateChange}
+                        InputLabelProps={{ shrink: true }}
+                        fullWidth
+                        margin="normal"
+                    />
+                    <IconButton onClick={handleNextDay}>
+                        <AddIcon />
+                    </IconButton>
+                </div>
+                <div className={styles.quickActions}>
+                    <Button variant="contained" color="primary" onClick={handleToday} startIcon={<TodayIcon />}>
+                        Dzisiaj
+                    </Button>
+                </div>
+            </div>
+
+            <div className={styles.legend}>
+                <ul><span>Grupy:</span>
+                    {userGroups.map((group, index) => (
+                        <li key={index} className={styles.legendItem}>
+                            <span className={styles.legendCircle} style={{ backgroundColor: group.color }}></span>
+                            {group.name}
+                        </li>
+                    ))}
+                </ul>
             </div>
 
             <table className="reservation-calendar">
