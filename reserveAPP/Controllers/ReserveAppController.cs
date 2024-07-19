@@ -5,14 +5,6 @@ using System.Data.SqlTypes;
 using reserveAPP.Models;
 using reserveAPP.Services;
 
-
-using Microsoft.AspNetCore.Mvc;
-using System.Data;
-using System.Data.SqlClient;
-using System.Data.SqlTypes;
-using reserveAPP.Models;
-using reserveAPP.Services;
-
 namespace reserveAPP.Controllers
 {
     [Route("api/[controller]")]
@@ -22,6 +14,8 @@ namespace reserveAPP.Controllers
         private readonly ReservationService _reservationService;
         private readonly UserService _userService;
         private readonly CourtService _courtService;
+        private readonly PriceService _priceService;
+
 
         public ReserveAppController(IConfiguration configuration)
         {
@@ -29,6 +23,8 @@ namespace reserveAPP.Controllers
             _reservationService = new ReservationService(connectionString);
             _userService = new UserService(connectionString);
             _courtService = new CourtService(connectionString);
+            _priceService = new PriceService(connectionString);
+
         }
 
         [HttpPost]
@@ -141,6 +137,126 @@ namespace reserveAPP.Controllers
         {
             _courtService.DeleteCourt(id);
             return new JsonResult("Court Deleted Successfully");
+        }
+
+        [HttpPost]
+        [Route("CreatePriceType")]
+        public IActionResult CreatePriceType([FromBody] PriceTypeModel priceType)
+        {
+            try
+            {
+                _priceService.CreatePriceType(priceType);
+                return Ok(new { message = "Price Type Created Successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        [Route("GetPriceTypes")]
+        public IActionResult GetPriceTypes()
+        {
+            try
+            {
+                List<PriceTypeModel> priceTypes = _priceService.GetPriceTypes();
+                return Ok(priceTypes);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [Route("CreatePriceSeason")]
+        public IActionResult CreatePriceSeason([FromBody] PriceSeasonModel priceSeason)
+        {
+            try
+            {
+                _priceService.CreatePriceSeason(priceSeason);
+                return Ok(new { message = "Price Season Created Successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        [Route("GetPriceSeasons")]
+        public IActionResult GetPriceSeasons()
+        {
+            try
+            {
+                List<PriceSeasonModel> priceSeasons = _priceService.GetPriceSeasons();
+                return Ok(priceSeasons);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [Route("CreatePriceDayType")]
+        public IActionResult CreatePriceDayType([FromBody] PriceDayTypeModel priceDayType)
+        {
+            try
+            {
+                _priceService.CreatePriceDayType(priceDayType);
+                return Ok(new { message = "Price Day Type Created Successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        [Route("GetPriceDayTypes")]
+        public IActionResult GetPriceDayTypes()
+        {
+            try
+            {
+                List<PriceDayTypeModel> priceDayTypes = _priceService.GetPriceDayTypes();
+                return Ok(priceDayTypes);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [Route("CreatePriceDetail")]
+        public IActionResult CreatePriceDetail([FromBody] PriceDetailModel priceDetail)
+        {
+            try
+            {
+                _priceService.CreatePriceDetail(priceDetail);
+                return Ok(new { message = "Price Detail Created Successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        [Route("GetPriceDetails")]
+        public IActionResult GetPriceDetails()
+        {
+            try
+            {
+                List<PriceDetailModel> priceDetails = _priceService.GetPriceDetails();
+                return Ok(priceDetails);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
     }
 }

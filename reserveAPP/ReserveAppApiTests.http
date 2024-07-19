@@ -108,3 +108,6 @@ GET {{url}}/api/ReserveApp/GetCourts
 
 ### Usunięcie kortu
 DELETE {{url}}/api/ReserveApp/DeleteCourt/1
+
+### Usunięcie kortu
+DELETE {{url}}/api/ReserveApp/DeleteCourt/1
