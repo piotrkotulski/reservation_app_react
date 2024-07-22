@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
     Container,
     Table,
@@ -11,10 +11,10 @@ import {
     Button,
     Paper,
 } from '@mui/material';
-import { ToastContainer, toast } from 'react-toastify';
+import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const Pricing = ({ API_URL }) => {
+const Pricing = ({API_URL}) => {
     const [pricing, setPricing] = useState([]);
     const [priceTypes, setPriceTypes] = useState([]);
     const [priceSeasons, setPriceSeasons] = useState([]);
@@ -29,9 +29,9 @@ const Pricing = ({ API_URL }) => {
         price: ''
     });
 
-    const [newPriceType, setNewPriceType] = useState({ Name: '' });
-    const [newPriceSeason, setNewPriceSeason] = useState({ Name: '' });
-    const [newPriceDayType, setNewPriceDayType] = useState({ Name: '' });
+    const [newPriceType, setNewPriceType] = useState({Name: ''});
+    const [newPriceSeason, setNewPriceSeason] = useState({Name: ''});
+    const [newPriceDayType, setNewPriceDayType] = useState({Name: ''});
 
     useEffect(() => {
         fetchPricing();
@@ -84,7 +84,7 @@ const Pricing = ({ API_URL }) => {
     };
 
     const handleInputChange = (e) => {
-        setNewPrice({ ...newPrice, [e.target.name]: e.target.value });
+        setNewPrice({...newPrice, [e.target.name]: e.target.value});
     };
 
     const handleAddPrice = async () => {
@@ -96,7 +96,7 @@ const Pricing = ({ API_URL }) => {
         try {
             const response = await fetch(`${API_URL}api/ReserveApp/CreatePriceDetail`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(newPrice)
             });
 
@@ -149,14 +149,14 @@ const Pricing = ({ API_URL }) => {
         try {
             const response = await fetch(`${API_URL}api/ReserveApp/CreatePriceType`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(newPriceType)
             });
 
             if (response.ok) {
                 toast.success('Typ cennika dodany pomyślnie');
                 fetchPriceTypes();
-                setNewPriceType({ Name: '' });
+                setNewPriceType({Name: ''});
             } else {
                 const errorData = await response.json();
                 toast.error(`Nie udało się dodać typu cennika: ${errorData.message}`);
@@ -195,14 +195,14 @@ const Pricing = ({ API_URL }) => {
         try {
             const response = await fetch(`${API_URL}api/ReserveApp/CreatePriceSeason`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(newPriceSeason)
             });
 
             if (response.ok) {
                 toast.success('Sezon dodany pomyślnie');
                 fetchPriceSeasons();
-                setNewPriceSeason({ Name: '' });
+                setNewPriceSeason({Name: ''});
             } else {
                 const errorData = await response.json();
                 toast.error(`Nie udało się dodać sezonu: ${errorData.message}`);
@@ -241,14 +241,14 @@ const Pricing = ({ API_URL }) => {
         try {
             const response = await fetch(`${API_URL}api/ReserveApp/CreatePriceDayType`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(newPriceDayType)
             });
 
             if (response.ok) {
                 toast.success('Typ dnia dodany pomyślnie');
                 fetchPriceDayTypes();
-                setNewPriceDayType({ Name: '' });
+                setNewPriceDayType({Name: ''});
             } else {
                 const errorData = await response.json();
                 toast.error(`Nie udało się dodać typu dnia: ${errorData.message}`);
@@ -289,7 +289,8 @@ const Pricing = ({ API_URL }) => {
 
     return (
         <Container>
-            <ToastContainer position="top-right" autoClose={1000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
+            <ToastContainer position="top-right" autoClose={1000} hideProgressBar={false} newestOnTop={false}
+                            closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover/>
             <h1>Cennik</h1>
             <TableContainer component={Paper}>
                 <Table>
@@ -340,9 +341,9 @@ const Pricing = ({ API_URL }) => {
                 onChange={handleInputChange}
                 fullWidth
                 margin="normal"
-                SelectProps={{ native: true }}
+                SelectProps={{native: true}}
             >
-                <option value="">Wybierz typ cennika</option>
+                <option value="Wybierz"></option>
                 {priceTypes.map((type) => {
                     console.log('Processing price type:', type);
                     return (
@@ -360,9 +361,9 @@ const Pricing = ({ API_URL }) => {
                 onChange={handleInputChange}
                 fullWidth
                 margin="normal"
-                SelectProps={{ native: true }}
+                SelectProps={{native: true}}
             >
-                <option value="">Wybierz sezon</option>
+                <option value="Wybierz"></option>
                 {priceSeasons.map((season) => {
                     console.log('Processing price season:', season);
                     return (
@@ -380,9 +381,9 @@ const Pricing = ({ API_URL }) => {
                 onChange={handleInputChange}
                 fullWidth
                 margin="normal"
-                SelectProps={{ native: true }}
+                SelectProps={{native: true}}
             >
-                <option value="">Wybierz typ dnia</option>
+                <option value="Wybierz typ dnia"></option>
                 {priceDayTypes.map((dayType) => {
                     console.log('Processing price day type:', dayType);
                     return (
@@ -400,8 +401,8 @@ const Pricing = ({ API_URL }) => {
                 onChange={handleInputChange}
                 fullWidth
                 margin="normal"
-                InputLabelProps={{ shrink: true }}
-                inputProps={{ step: 300 }} // 5 min
+                InputLabelProps={{shrink: true}}
+                inputProps={{step: 300}} // 5 min
             />
             <TextField
                 label="Do Godziny"
@@ -411,8 +412,8 @@ const Pricing = ({ API_URL }) => {
                 onChange={handleInputChange}
                 fullWidth
                 margin="normal"
-                InputLabelProps={{ shrink: true }}
-                inputProps={{ step: 300 }} // 5 min
+                InputLabelProps={{shrink: true}}
+                inputProps={{step: 300}} // 5 min
             />
             <TextField
                 label="Cena"
@@ -437,7 +438,7 @@ const Pricing = ({ API_URL }) => {
                 label="Nowy Typ Cennika"
                 name="Name"
                 value={newPriceType.Name}
-                onChange={(e) => setNewPriceType({ ...newPriceType, Name: e.target.value })}
+                onChange={(e) => setNewPriceType({...newPriceType, Name: e.target.value})}
                 fullWidth
                 margin="normal"
             />
@@ -448,7 +449,7 @@ const Pricing = ({ API_URL }) => {
             >
                 Dodaj Typ Cennika
             </Button>
-            <TableContainer component={Paper} style={{ marginTop: '20px' }}>
+            <TableContainer component={Paper} style={{marginTop: '20px'}}>
                 <Table>
                     <TableHead>
                         <TableRow>
@@ -484,7 +485,7 @@ const Pricing = ({ API_URL }) => {
                 label="Nowy Sezon"
                 name="Name"
                 value={newPriceSeason.Name}
-                onChange={(e) => setNewPriceSeason({ ...newPriceSeason, Name: e.target.value })}
+                onChange={(e) => setNewPriceSeason({...newPriceSeason, Name: e.target.value})}
                 fullWidth
                 margin="normal"
             />
@@ -495,7 +496,7 @@ const Pricing = ({ API_URL }) => {
             >
                 Dodaj Sezon
             </Button>
-            <TableContainer component={Paper} style={{ marginTop: '20px' }}>
+            <TableContainer component={Paper} style={{marginTop: '20px'}}>
                 <Table>
                     <TableHead>
                         <TableRow>
@@ -531,7 +532,7 @@ const Pricing = ({ API_URL }) => {
                 label="Nowy Typ Dnia"
                 name="Name"
                 value={newPriceDayType.Name}
-                onChange={(e) => setNewPriceDayType({ ...newPriceDayType, Name: e.target.value })}
+                onChange={(e) => setNewPriceDayType({...newPriceDayType, Name: e.target.value})}
                 fullWidth
                 margin="normal"
             />
@@ -542,7 +543,7 @@ const Pricing = ({ API_URL }) => {
             >
                 Dodaj Typ Dnia
             </Button>
-            <TableContainer component={Paper} style={{ marginTop: '20px' }}>
+            <TableContainer component={Paper} style={{marginTop: '20px'}}>
                 <Table>
                     <TableHead>
                         <TableRow>
