@@ -29,9 +29,9 @@ const Pricing = ({ API_URL }) => {
         price: ''
     });
 
-    const [newPriceType, setNewPriceType] = useState({ name: '' });
-    const [newPriceSeason, setNewPriceSeason] = useState({ name: '' });
-    const [newPriceDayType, setNewPriceDayType] = useState({ name: '' });
+    const [newPriceType, setNewPriceType] = useState({ Name: '' });
+    const [newPriceSeason, setNewPriceSeason] = useState({ Name: '' });
+    const [newPriceDayType, setNewPriceDayType] = useState({ Name: '' });
 
     useEffect(() => {
         fetchPricing();
@@ -44,7 +44,6 @@ const Pricing = ({ API_URL }) => {
         try {
             const response = await fetch(`${API_URL}api/ReserveApp/GetPriceDetails`);
             const data = await response.json();
-            console.log('Pricing data:', data); // Logowanie danych
             setPricing(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error('Błąd podczas pobierania cennika:', error);
@@ -55,8 +54,8 @@ const Pricing = ({ API_URL }) => {
         try {
             const response = await fetch(`${API_URL}api/ReserveApp/GetPriceTypes`);
             const data = await response.json();
-            console.log('Price types data:', data); // Logowanie danych
             setPriceTypes(Array.isArray(data) ? data : []);
+            console.log('Price types:', data);
         } catch (error) {
             console.error('Błąd podczas pobierania typów cenników:', error);
         }
@@ -66,8 +65,8 @@ const Pricing = ({ API_URL }) => {
         try {
             const response = await fetch(`${API_URL}api/ReserveApp/GetPriceSeasons`);
             const data = await response.json();
-            console.log('Price seasons data:', data); // Logowanie danych
             setPriceSeasons(Array.isArray(data) ? data : []);
+            console.log('Price seasons:', data);
         } catch (error) {
             console.error('Błąd podczas pobierania sezonów cenników:', error);
         }
@@ -77,8 +76,8 @@ const Pricing = ({ API_URL }) => {
         try {
             const response = await fetch(`${API_URL}api/ReserveApp/GetPriceDayTypes`);
             const data = await response.json();
-            console.log('Price day types data:', data); // Logowanie danych
             setPriceDayTypes(Array.isArray(data) ? data : []);
+            console.log('Price day types:', data);
         } catch (error) {
             console.error('Błąd podczas pobierania typów dni cenników:', error);
         }
@@ -142,7 +141,7 @@ const Pricing = ({ API_URL }) => {
     };
 
     const handleAddPriceType = async () => {
-        if (!newPriceType.name) {
+        if (!newPriceType.Name) {
             toast.error("Proszę podać nazwę typu cennika!");
             return;
         }
@@ -157,7 +156,7 @@ const Pricing = ({ API_URL }) => {
             if (response.ok) {
                 toast.success('Typ cennika dodany pomyślnie');
                 fetchPriceTypes();
-                setNewPriceType({ name: '' });
+                setNewPriceType({ Name: '' });
             } else {
                 const errorData = await response.json();
                 toast.error(`Nie udało się dodać typu cennika: ${errorData.message}`);
@@ -188,7 +187,7 @@ const Pricing = ({ API_URL }) => {
     };
 
     const handleAddPriceSeason = async () => {
-        if (!newPriceSeason.name) {
+        if (!newPriceSeason.Name) {
             toast.error("Proszę podać nazwę sezonu!");
             return;
         }
@@ -203,7 +202,7 @@ const Pricing = ({ API_URL }) => {
             if (response.ok) {
                 toast.success('Sezon dodany pomyślnie');
                 fetchPriceSeasons();
-                setNewPriceSeason({ name: '' });
+                setNewPriceSeason({ Name: '' });
             } else {
                 const errorData = await response.json();
                 toast.error(`Nie udało się dodać sezonu: ${errorData.message}`);
@@ -234,7 +233,7 @@ const Pricing = ({ API_URL }) => {
     };
 
     const handleAddPriceDayType = async () => {
-        if (!newPriceDayType.name) {
+        if (!newPriceDayType.Name) {
             toast.error("Proszę podać nazwę typu dnia!");
             return;
         }
@@ -249,7 +248,7 @@ const Pricing = ({ API_URL }) => {
             if (response.ok) {
                 toast.success('Typ dnia dodany pomyślnie');
                 fetchPriceDayTypes();
-                setNewPriceDayType({ name: '' });
+                setNewPriceDayType({ Name: '' });
             } else {
                 const errorData = await response.json();
                 toast.error(`Nie udało się dodać typu dnia: ${errorData.message}`);
@@ -281,8 +280,12 @@ const Pricing = ({ API_URL }) => {
 
     const getNameById = (id, list, key) => {
         const item = list.find(el => el[key] === id);
-        return item ? item.name : 'Nieznany';
+        return item ? item.Name : 'Nieznany';
     };
+
+    if (!pricing.length || !priceTypes.length || !priceSeasons.length || !priceDayTypes.length) {
+        return <div>Ładowanie danych...</div>;
+    }
 
     return (
         <Container>
@@ -302,28 +305,32 @@ const Pricing = ({ API_URL }) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {Array.isArray(pricing) && pricing.map((price, index) => (
-                            <TableRow key={index}>
-                                <TableCell>{getNameById(price.priceTypeId, priceTypes, 'priceTypeId')}</TableCell>
-                                <TableCell>{getNameById(price.priceSeasonId, priceSeasons, 'priceSeasonId')}</TableCell>
-                                <TableCell>{getNameById(price.priceDayTypeId, priceDayTypes, 'priceDayTypeId')}</TableCell>
-                                <TableCell>{price.startTime}</TableCell>
-                                <TableCell>{price.endTime}</TableCell>
-                                <TableCell>{price.price} zł</TableCell>
-                                <TableCell>
-                                    <Button
-                                        variant="contained"
-                                        color="secondary"
-                                        onClick={() => handleDeletePrice(price.priceDetailId)}
-                                    >
-                                        Usuń
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
-                        ))}
+                        {Array.isArray(pricing) && pricing.map((price, index) => {
+                            console.log('Rendering price item:', price);
+                            return (
+                                <TableRow key={index}>
+                                    <TableCell>{getNameById(price.PriceTypeId, priceTypes, 'PriceTypeId')}</TableCell>
+                                    <TableCell>{getNameById(price.PriceSeasonId, priceSeasons, 'PriceSeasonId')}</TableCell>
+                                    <TableCell>{getNameById(price.PriceDayTypeId, priceDayTypes, 'PriceDayTypeId')}</TableCell>
+                                    <TableCell>{price.StartTime}</TableCell>
+                                    <TableCell>{price.EndTime}</TableCell>
+                                    <TableCell>{price.Price} zł</TableCell>
+                                    <TableCell>
+                                        <Button
+                                            variant="contained"
+                                            color="secondary"
+                                            onClick={() => handleDeletePrice(price.PriceDetailId)}
+                                        >
+                                            Usuń
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            );
+                        })}
                     </TableBody>
                 </Table>
             </TableContainer>
+
             <h2>Dodaj nową cenę</h2>
             <TextField
                 label="Typ Cennika"
@@ -336,11 +343,14 @@ const Pricing = ({ API_URL }) => {
                 SelectProps={{ native: true }}
             >
                 <option value="">Wybierz typ cennika</option>
-                {priceTypes.map((type) => (
-                    <option key={type.priceTypeId} value={type.priceTypeId}>
-                        {type.name}
-                    </option>
-                ))}
+                {priceTypes.map((type) => {
+                    console.log('Processing price type:', type);
+                    return (
+                        <option key={type.PriceTypeId} value={type.PriceTypeId}>
+                            {type.Name}
+                        </option>
+                    );
+                })}
             </TextField>
             <TextField
                 label="Sezon"
@@ -353,11 +363,14 @@ const Pricing = ({ API_URL }) => {
                 SelectProps={{ native: true }}
             >
                 <option value="">Wybierz sezon</option>
-                {priceSeasons.map((season) => (
-                    <option key={season.priceSeasonId} value={season.priceSeasonId}>
-                        {season.name}
-                    </option>
-                ))}
+                {priceSeasons.map((season) => {
+                    console.log('Processing price season:', season);
+                    return (
+                        <option key={season.PriceSeasonId} value={season.PriceSeasonId}>
+                            {season.Name}
+                        </option>
+                    );
+                })}
             </TextField>
             <TextField
                 label="Typ Dnia"
@@ -370,11 +383,14 @@ const Pricing = ({ API_URL }) => {
                 SelectProps={{ native: true }}
             >
                 <option value="">Wybierz typ dnia</option>
-                {priceDayTypes.map((dayType) => (
-                    <option key={dayType.priceDayTypeId} value={dayType.priceDayTypeId}>
-                        {dayType.name}
-                    </option>
-                ))}
+                {priceDayTypes.map((dayType) => {
+                    console.log('Processing price day type:', dayType);
+                    return (
+                        <option key={dayType.PriceDayTypeId} value={dayType.PriceDayTypeId}>
+                            {dayType.Name}
+                        </option>
+                    );
+                })}
             </TextField>
             <TextField
                 label="Od Godziny"
@@ -419,9 +435,9 @@ const Pricing = ({ API_URL }) => {
             <h2>Zarządzaj typami cenników</h2>
             <TextField
                 label="Nowy Typ Cennika"
-                name="name"
-                value={newPriceType.name}
-                onChange={(e) => setNewPriceType({ ...newPriceType, name: e.target.value })}
+                name="Name"
+                value={newPriceType.Name}
+                onChange={(e) => setNewPriceType({ ...newPriceType, Name: e.target.value })}
                 fullWidth
                 margin="normal"
             />
@@ -441,20 +457,23 @@ const Pricing = ({ API_URL }) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {Array.isArray(priceTypes) && priceTypes.map((type) => (
-                            <TableRow key={type.priceTypeId}>
-                                <TableCell>{type.name}</TableCell>
-                                <TableCell>
-                                    <Button
-                                        variant="contained"
-                                        color="secondary"
-                                        onClick={() => handleDeletePriceType(type.priceTypeId)}
-                                    >
-                                        Usuń
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
-                        ))}
+                        {Array.isArray(priceTypes) && priceTypes.map((type) => {
+                            console.log('Rendering price type:', type);
+                            return (
+                                <TableRow key={type.PriceTypeId}>
+                                    <TableCell>{type.Name}</TableCell>
+                                    <TableCell>
+                                        <Button
+                                            variant="contained"
+                                            color="secondary"
+                                            onClick={() => handleDeletePriceType(type.PriceTypeId)}
+                                        >
+                                            Usuń
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            );
+                        })}
                     </TableBody>
                 </Table>
             </TableContainer>
@@ -463,9 +482,9 @@ const Pricing = ({ API_URL }) => {
             <h2>Zarządzaj sezonami cenników</h2>
             <TextField
                 label="Nowy Sezon"
-                name="name"
-                value={newPriceSeason.name}
-                onChange={(e) => setNewPriceSeason({ ...newPriceSeason, name: e.target.value })}
+                name="Name"
+                value={newPriceSeason.Name}
+                onChange={(e) => setNewPriceSeason({ ...newPriceSeason, Name: e.target.value })}
                 fullWidth
                 margin="normal"
             />
@@ -485,20 +504,23 @@ const Pricing = ({ API_URL }) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {Array.isArray(priceSeasons) && priceSeasons.map((season) => (
-                            <TableRow key={season.priceSeasonId}>
-                                <TableCell>{season.name}</TableCell>
-                                <TableCell>
-                                    <Button
-                                        variant="contained"
-                                        color="secondary"
-                                        onClick={() => handleDeletePriceSeason(season.priceSeasonId)}
-                                    >
-                                        Usuń
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
-                        ))}
+                        {Array.isArray(priceSeasons) && priceSeasons.map((season) => {
+                            console.log('Rendering price season:', season);
+                            return (
+                                <TableRow key={season.PriceSeasonId}>
+                                    <TableCell>{season.Name}</TableCell>
+                                    <TableCell>
+                                        <Button
+                                            variant="contained"
+                                            color="secondary"
+                                            onClick={() => handleDeletePriceSeason(season.PriceSeasonId)}
+                                        >
+                                            Usuń
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            );
+                        })}
                     </TableBody>
                 </Table>
             </TableContainer>
@@ -507,9 +529,9 @@ const Pricing = ({ API_URL }) => {
             <h2>Zarządzaj typami dni cenników</h2>
             <TextField
                 label="Nowy Typ Dnia"
-                name="name"
-                value={newPriceDayType.name}
-                onChange={(e) => setNewPriceDayType({ ...newPriceDayType, name: e.target.value })}
+                name="Name"
+                value={newPriceDayType.Name}
+                onChange={(e) => setNewPriceDayType({ ...newPriceDayType, Name: e.target.value })}
                 fullWidth
                 margin="normal"
             />
@@ -529,20 +551,23 @@ const Pricing = ({ API_URL }) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {Array.isArray(priceDayTypes) && priceDayTypes.map((dayType) => (
-                            <TableRow key={dayType.priceDayTypeId}>
-                                <TableCell>{dayType.name}</TableCell>
-                                <TableCell>
-                                    <Button
-                                        variant="contained"
-                                        color="secondary"
-                                        onClick={() => handleDeletePriceDayType(dayType.priceDayTypeId)}
-                                    >
-                                        Usuń
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
-                        ))}
+                        {Array.isArray(priceDayTypes) && priceDayTypes.map((dayType) => {
+                            console.log('Rendering price day type:', dayType);
+                            return (
+                                <TableRow key={dayType.PriceDayTypeId}>
+                                    <TableCell>{dayType.Name}</TableCell>
+                                    <TableCell>
+                                        <Button
+                                            variant="contained"
+                                            color="secondary"
+                                            onClick={() => handleDeletePriceDayType(dayType.PriceDayTypeId)}
+                                        >
+                                            Usuń
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            );
+                        })}
                     </TableBody>
                 </Table>
             </TableContainer>

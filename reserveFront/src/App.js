@@ -245,7 +245,7 @@ const App = () => {
                 const courtId = i + 1;
                 const endTime = format(addMinutes(new Date(`1970-01-01T${time}`), duration), 'HH:mm');
                 const reservation = isReserved(courtId, time, endTime);
-                console.log(time);
+
                 //const reservation = !isAvailable(courtId, time);
                 const isTimeReserved = reservation != null;
 
@@ -267,7 +267,6 @@ const App = () => {
                     }
                 }
                 let reservationClass = 'available';
-                console.log(reservation);
                 if (isTimeReserved) {
                     reservationClass = 'reserved';
                     if (reservation.StartTime === time) {
