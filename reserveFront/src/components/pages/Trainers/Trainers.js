@@ -21,12 +21,13 @@ const Trainers = ({ API_URL }) => {
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [currentTrainer, setCurrentTrainer] = useState({
-        trainerId: null,
+        id: null, 
         firstName: '',
         lastName: '',
         email: '',
         phoneNumber: ''
     });
+    
 
     useEffect(() => {
         fetchTrainers();
@@ -34,7 +35,10 @@ const Trainers = ({ API_URL }) => {
 
     const fetchTrainers = async () => {
         try {
-            const response = await fetch(`${API_URL}api/ReserveApp/GetTrainers`);
+            const response = await fetch(`${API_URL}api/ReserveApp/GetAllTrainers`);
+            if (!response.ok) {
+                throw new Error('Błąd podczas pobierania trenerów');
+            }
             const data = await response.json();
             setTrainers(data);
             console.log('Pobrani trenerzy:', data);
@@ -42,6 +46,7 @@ const Trainers = ({ API_URL }) => {
             console.error('Błąd podczas pobierania trenerów:', error);
         }
     };
+    
 
     const fetchTrainerDetails = async (trainerId) => {
         setLoading(true);
@@ -92,48 +97,52 @@ const Trainers = ({ API_URL }) => {
     };
 
     const handleAddOrUpdateTrainer = async () => {
-        if (!currentTrainer.firstName || !currentTrainer.lastName || !currentTrainer.email || !currentTrainer.phoneNumber) {
+        if (!currentTrainer.firstName || !currentTrainer.lastName || !currentTrainer.email) {
             toast.error("Proszę uzupełnić wszystkie pola!");
             return;
         }
-
-        const url = currentTrainer.trainerId
-            ? `${API_URL}api/ReserveApp/UpdateTrainer/${currentTrainer.trainerId}`
-            : `${API_URL}api/ReserveApp/CreateTrainer`;
-        const method = currentTrainer.trainerId ? 'PUT' : 'POST';
-
-        const body = { ...currentTrainer };
-        if (!body.trainerId) {
-            delete body.trainerId;
-        }
-
+    
+        const url = currentTrainer.id
+            ? `${API_URL}api/ReserveApp/UpdateTrainer/${currentTrainer.id}`
+            : `${API_URL}api/ReserveApp/AddTrainer`;
+        const method = currentTrainer.id ? 'PUT' : 'POST';
+    
+        const body = {
+            ID: currentTrainer.id,
+            FirstName: currentTrainer.firstName,
+            LastName: currentTrainer.lastName,
+            Email: currentTrainer.email,
+            PhoneNumber: currentTrainer.phoneNumber
+        };
+    
         try {
             const response = await fetch(url, {
                 method: method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
             });
+    
             if (response.ok) {
-                const result = await response.json();
-                if (!currentTrainer.trainerId) {
-                    console.log("Nowy trener utworzony:", result);
+                const result = response.status !== 204 ? await response.json() : {};
+                if (!currentTrainer.id) {
                     setTrainers(prevTrainers => [...prevTrainers, result]);
                 } else {
-                    console.log("Trener zaktualizowany:", result);
-                    setTrainers(prevTrainers => prevTrainers.map(trainer => trainer.TrainerId === currentTrainer.trainerId ? currentTrainer : trainer));
+                    setTrainers(prevTrainers => prevTrainers.map(trainer => trainer.ID === currentTrainer.id ? result : trainer));
                 }
-                toast.success(`Trener ${currentTrainer.trainerId ? 'zaktualizowany' : 'dodany'} pomyślnie`);
+                toast.success(`Trener ${currentTrainer.id ? 'zaktualizowany' : 'dodany'} pomyślnie`);
                 fetchTrainers();
                 handleClose();
             } else {
                 const errorData = await response.json();
-                toast.error(`Nie udało się ${currentTrainer.trainerId ? 'zaktualizować' : 'dodać'} trenera: ${errorData.message}`);
+                toast.error(`Nie udało się ${currentTrainer.id ? 'zaktualizować' : 'dodać'} trenera: ${errorData.message}`);
             }
         } catch (error) {
             console.error('Błąd:', error);
             toast.error('Wystąpił błąd podczas operacji dodawania/aktualizacji');
         }
     };
+    
+    
 
     const handleDeleteTrainer = async (trainerId) => {
         const response = await fetch(`${API_URL}api/ReserveApp/DeleteTrainer/${trainerId}`, {

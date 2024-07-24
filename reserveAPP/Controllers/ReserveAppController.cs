@@ -15,6 +15,7 @@ namespace reserveAPP.Controllers
         private readonly UserService _userService;
         private readonly CourtService _courtService;
         private readonly PriceService _priceService;
+        private readonly TrainerService _TrainerService;
 
 
         public ReserveAppController(IConfiguration configuration)
@@ -24,6 +25,7 @@ namespace reserveAPP.Controllers
             _userService = new UserService(connectionString);
             _courtService = new CourtService(connectionString);
             _priceService = new PriceService(connectionString);
+            _TrainerService = new TrainerService(connectionString);
 
         }
 
@@ -316,6 +318,53 @@ namespace reserveAPP.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = ex.Message });
+            }
+        }
+        [HttpGet]
+        [Route("GetAllTrainers")]
+        public ActionResult<IEnumerable<Trainer>> GetAllTrainers()
+        {
+            return Ok(_TrainerService.GetAllTrainers());
+        }
+
+
+        [HttpPost]
+        [Route("AddTrainer")]
+        public ActionResult AddTrainer([FromBody] Trainer trainer)
+        {
+            _TrainerService.AddTrainer(trainer);
+            return Ok(trainer); // Zwrot obiektu trenera jako potwierdzenie
+        }
+
+
+
+        [HttpPut("{id}")]
+        public ActionResult UpdateTrainer(int id, [FromBody] Trainer Trainer)
+        {
+            Trainer.ID = id;
+            _TrainerService.UpdateTrainer(Trainer);
+            return Ok();
+        }
+
+        [HttpDelete("{id}")]
+        public ActionResult DeleteTrainer(int id)
+        {
+            _TrainerService.DeleteTrainer(id);
+            return Ok();
+        }
+
+        [HttpGet]
+        [Route("GetTrainer/{id}")]
+        public IActionResult GetTrainer(int id)
+        {
+            var trainer = _TrainerService.GetTrainer(id);
+            if (trainer != null)
+            {
+                return Ok(trainer);
+            }
+            else
+            {
+                return NotFound("Trainer not found");
             }
         }
     }
