@@ -1,3 +1,3 @@
 ﻿<Project>
-  <Import Project="../build/ReserveAPP.props" />
+  <Import Project="..\build\ReserveAPP.props" />
 </Project>

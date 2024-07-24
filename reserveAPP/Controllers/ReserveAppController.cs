@@ -258,5 +258,65 @@ namespace reserveAPP.Controllers
                 return StatusCode(500, new { message = ex.Message });
             }
         }
+        
+        [HttpDelete]
+        [Route("DeletePriceDetail/{id}")]
+        public IActionResult DeletePriceDetail(int id)
+        {
+            try
+            {
+                _priceService.DeletePriceDetail(id);
+                return Ok(new { message = "Price Detail Deleted Successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        [HttpDelete]
+        [Route("DeletePriceType/{id}")]
+        public IActionResult DeletePriceType(int id)
+        {
+            try
+            {
+                _priceService.DeletePriceType(id);
+                return Ok(new { message = "Price Type Deleted Successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        [HttpDelete]
+        [Route("DeletePriceSeason/{id}")]
+        public IActionResult DeletePriceSeason(int id)
+        {
+            try
+            {
+                _priceService.DeletePriceSeason(id);
+                return Ok(new { message = "Price Season Deleted Successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        [HttpDelete]
+        [Route("DeletePriceDayType/{id}")]
+        public IActionResult DeletePriceDayType(int id)
+        {
+            try
+            {
+                _priceService.DeletePriceDayType(id);
+                return Ok(new { message = "Price Day Type Deleted Successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
     }
 }

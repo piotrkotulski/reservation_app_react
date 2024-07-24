@@ -126,19 +126,20 @@ const Pricing = ({API_URL}) => {
             const response = await fetch(`${API_URL}api/ReserveApp/DeletePriceDetail/${id}`, {
                 method: 'DELETE'
             });
-
+    
             if (response.ok) {
                 toast.success('Cena usunięta pomyślnie');
                 fetchPricing();
             } else {
                 const errorData = await response.json();
-                toast.error(`Nie udało się usunąć ceny: ${errorData.message}`);
+                toast.error(`Nie udało się usunąć ceny: ${errorData.message || 'Wystąpił nieznany błąd'}`);
             }
         } catch (error) {
             console.error('Błąd podczas usuwania ceny:', error);
             toast.error('Wystąpił błąd podczas usuwania ceny');
         }
     };
+    
 
     const handleAddPriceType = async () => {
         if (!newPriceType.Name) {
@@ -172,19 +173,20 @@ const Pricing = ({API_URL}) => {
             const response = await fetch(`${API_URL}api/ReserveApp/DeletePriceType/${id}`, {
                 method: 'DELETE'
             });
-
+    
             if (response.ok) {
                 toast.success('Typ cennika usunięty pomyślnie');
                 fetchPriceTypes();
             } else {
                 const errorData = await response.json();
-                toast.error(`Nie udało się usunąć typu cennika: ${errorData.message}`);
+                toast.error(`Nie udało się usunąć typu cennika: ${errorData.message || 'Wystąpił nieznany błąd'}`);
             }
         } catch (error) {
             console.error('Błąd podczas usuwania typu cennika:', error);
             toast.error('Wystąpił błąd podczas usuwania typu cennika');
         }
     };
+    
 
     const handleAddPriceSeason = async () => {
         if (!newPriceSeason.Name) {
@@ -218,19 +220,20 @@ const Pricing = ({API_URL}) => {
             const response = await fetch(`${API_URL}api/ReserveApp/DeletePriceSeason/${id}`, {
                 method: 'DELETE'
             });
-
+    
             if (response.ok) {
                 toast.success('Sezon usunięty pomyślnie');
                 fetchPriceSeasons();
             } else {
                 const errorData = await response.json();
-                toast.error(`Nie udało się usunąć sezonu: ${errorData.message}`);
+                toast.error(`Nie udało się usunąć sezonu: ${errorData.message || 'Wystąpił nieznany błąd'}`);
             }
         } catch (error) {
             console.error('Błąd podczas usuwania sezonu:', error);
             toast.error('Wystąpił błąd podczas usuwania sezonu');
         }
     };
+    
 
     const handleAddPriceDayType = async () => {
         if (!newPriceDayType.Name) {
@@ -264,19 +267,20 @@ const Pricing = ({API_URL}) => {
             const response = await fetch(`${API_URL}api/ReserveApp/DeletePriceDayType/${id}`, {
                 method: 'DELETE'
             });
-
+    
             if (response.ok) {
                 toast.success('Typ dnia usunięty pomyślnie');
                 fetchPriceDayTypes();
             } else {
                 const errorData = await response.json();
-                toast.error(`Nie udało się usunąć typu dnia: ${errorData.message}`);
+                toast.error(`Nie udało się usunąć typu dnia: ${errorData.message || 'Wystąpił nieznany błąd'}`);
             }
         } catch (error) {
             console.error('Błąd podczas usuwania typu dnia:', error);
             toast.error('Wystąpił błąd podczas usuwania typu dnia');
         }
     };
+    
 
     const getNameById = (id, list, key) => {
         const item = list.find(el => el[key] === id);

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -60,6 +61,35 @@ namespace reserveAPP.Services
             return priceTypes;
         }
 
+        public void DeletePriceType(int id)
+        {
+            string query = "DELETE FROM PriceType WHERE PriceTypeId = @PriceTypeId";
+
+            try
+            {
+                using (SqlConnection myConn = new SqlConnection(_connectionString))
+                {
+                    myConn.Open();
+                    using (SqlCommand myCommand = new SqlCommand(query, myConn))
+                    {
+                        myCommand.Parameters.AddWithValue("@PriceTypeId", id);
+                        myCommand.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                if (ex.Number == 547) // Numer błędu SQL dla naruszenia klucza obcego
+                {
+                    throw new InvalidOperationException("Nie można usunąć typu cennika, ponieważ jest powiązany z innymi danymi.");
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+
         // Metody do zarządzania PriceSeason
         public void CreatePriceSeason(PriceSeasonModel priceSeason)
         {
@@ -106,6 +136,35 @@ namespace reserveAPP.Services
             return priceSeasons;
         }
 
+        public void DeletePriceSeason(int id)
+        {
+            string query = "DELETE FROM PriceSeason WHERE PriceSeasonId = @PriceSeasonId";
+
+            try
+            {
+                using (SqlConnection myConn = new SqlConnection(_connectionString))
+                {
+                    myConn.Open();
+                    using (SqlCommand myCommand = new SqlCommand(query, myConn))
+                    {
+                        myCommand.Parameters.AddWithValue("@PriceSeasonId", id);
+                        myCommand.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                if (ex.Number == 547) // Numer błędu SQL dla naruszenia klucza obcego
+                {
+                    throw new InvalidOperationException("Nie można usunąć sezonu, ponieważ jest powiązany z innymi danymi.");
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+
         // Metody do zarządzania PriceDayType
         public void CreatePriceDayType(PriceDayTypeModel priceDayType)
         {
@@ -150,6 +209,35 @@ namespace reserveAPP.Services
             }
 
             return priceDayTypes;
+        }
+
+        public void DeletePriceDayType(int id)
+        {
+            string query = "DELETE FROM PriceDayType WHERE PriceDayTypeId = @PriceDayTypeId";
+
+            try
+            {
+                using (SqlConnection myConn = new SqlConnection(_connectionString))
+                {
+                    myConn.Open();
+                    using (SqlCommand myCommand = new SqlCommand(query, myConn))
+                    {
+                        myCommand.Parameters.AddWithValue("@PriceDayTypeId", id);
+                        myCommand.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                if (ex.Number == 547) // Numer błędu SQL dla naruszenia klucza obcego
+                {
+                    throw new InvalidOperationException("Nie można usunąć typu dnia, ponieważ jest powiązany z innymi danymi.");
+                }
+                else
+                {
+                    throw;
+                }
+            }
         }
 
         // Metody do zarządzania PriceDetail
@@ -208,6 +296,35 @@ namespace reserveAPP.Services
             }
 
             return priceDetails;
+        }
+
+        public void DeletePriceDetail(int id)
+        {
+            string query = "DELETE FROM PriceDetail WHERE PriceDetailId = @PriceDetailId";
+
+            try
+            {
+                using (SqlConnection myConn = new SqlConnection(_connectionString))
+                {
+                    myConn.Open();
+                    using (SqlCommand myCommand = new SqlCommand(query, myConn))
+                    {
+                        myCommand.Parameters.AddWithValue("@PriceDetailId", id);
+                        myCommand.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                if (ex.Number == 547) // Numer błędu SQL dla naruszenia klucza obcego
+                {
+                    throw new InvalidOperationException("Nie można usunąć szczegółu ceny, ponieważ jest powiązany z innymi danymi.");
+                }
+                else
+                {
+                    throw;
+                }
+            }
         }
     }
 }
