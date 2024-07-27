@@ -16,7 +16,7 @@ namespace reserveAPP.Controllers
         private readonly CourtService _courtService;
         private readonly PriceService _priceService;
         private readonly TrainerService _TrainerService;
-
+        private readonly UserGroupService _userGroupService;
 
         public ReserveAppController(IConfiguration configuration)
         {
@@ -26,6 +26,8 @@ namespace reserveAPP.Controllers
             _courtService = new CourtService(connectionString);
             _priceService = new PriceService(connectionString);
             _TrainerService = new TrainerService(connectionString);
+            _userGroupService = new UserGroupService(connectionString);
+
 
         }
 
@@ -41,7 +43,7 @@ namespace reserveAPP.Controllers
         [Route("UpdateReservation/{id}")]
         public IActionResult UpdateReservation(int id, [FromBody] ReservationModel reservation)
         {
-            reservation.ReservationId = id; // Przypisz ID rezerwacji z URL do modelu
+            reservation.ReservationId = id; 
             _reservationService.UpdateReservation(reservation);
             return new JsonResult("Reservation Updated Successfully");
         }
@@ -366,6 +368,53 @@ namespace reserveAPP.Controllers
             {
                 return NotFound("Trainer not found");
             }
+        }
+
+        [HttpPost]
+        [Route("CreateUserGroup")]
+        public IActionResult CreateUserGroup([FromBody] UserGroupModel group)
+        {
+            _userGroupService.CreateUserGroup(group);
+            return new JsonResult("User Group Created Successfully");
+        }
+
+        [HttpPut]
+        [Route("UpdateUserGroup/{id}")]
+        public IActionResult UpdateUserGroup(int id, [FromBody] UserGroupModel group)
+        {
+            _userGroupService.UpdateUserGroup(id, group);
+            return new JsonResult("User Group Updated Successfully");
+        }
+
+        [HttpGet]
+        [Route("GetUserGroups")]
+        public IActionResult GetUserGroups()
+        {
+            DataTable groups = _userGroupService.GetUserGroups();
+            return new JsonResult(groups);
+        }
+
+        [HttpGet]
+        [Route("GetUserGroup/{id}")]
+        public IActionResult GetUserGroup(int id)
+        {
+            DataTable group = _userGroupService.GetUserGroup(id);
+            if (group.Rows.Count > 0)
+            {
+                return new JsonResult(group.Rows[0]);
+            }
+            else
+            {
+                return new JsonResult("User Group not found");
+            }
+        }
+
+        [HttpDelete]
+        [Route("DeleteUserGroup/{id}")]
+        public IActionResult DeleteUserGroup(int id)
+        {
+            _userGroupService.DeleteUserGroup(id);
+            return new JsonResult("User Group Deleted Successfully");
         }
     }
 }

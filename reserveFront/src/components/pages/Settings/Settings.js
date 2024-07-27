@@ -121,7 +121,7 @@ const Settings = ({
                         onClick={handleAddGroup}
                         sx={{mr: 2}}
                     >
-                        {editingIndex !== null ? 'Zaktualizuj grupę' : 'Dodaj kolejny'}
+                        {editingIndex !== null ? 'Zaktualizuj grupę' : 'Dodaj grupę'}
                     </Button>
                     <Button
                         variant="contained"
