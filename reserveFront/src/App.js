@@ -338,6 +338,7 @@ const App = () => {
                         path="/settings"
                         element={
                             <Settings
+                                API_URL={API_URL} 
                                 numCourts={numCourts}
                                 setNumCourts={setNumCourts}
                                 openingHour={openingHour}

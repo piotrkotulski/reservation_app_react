@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import {ChromePicker} from 'react-color';
+import React, { useState, useEffect } from 'react';
+import { ChromePicker } from 'react-color';
 import {
     TextField,
     Button,
@@ -11,55 +11,118 @@ import {
     ListItemIcon,
     IconButton
 } from '@mui/material';
-import {Add, Save, Edit, Delete} from '@mui/icons-material';
-import {nanoid} from 'nanoid'
+import { Add, Save, Edit, Delete } from '@mui/icons-material';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import styles from './Settings.module.scss';
 
 const Settings = ({
-                      numCourts,
-                      setNumCourts,
-                      openingHour,
-                      closingHour,
-                      setOpeningHour,
-                      setClosingHour,
-                      handleSaveGroups,
-                      adduserGroup,
-                      deleteGroup,
-                      editGroup
-                  }) => {
-    const [userGroups, setUserGroups] = useState(JSON.parse(localStorage.getItem('userGroups')) || []);
+    numCourts,
+    setNumCourts,
+    openingHour,
+    closingHour,
+    setOpeningHour,
+    setClosingHour,
+    API_URL,
+    adduserGroup,
+    deleteGroup,
+    editGroup
+}) => {
+    const [userGroups, setUserGroups] = useState([]);
     const [groupName, setGroupName] = useState('');
     const [groupColor, setGroupColor] = useState('#ffffff');
     const [editingIndex, setEditingIndex] = useState(null);
+    const [editingId, setEditingId] = useState(null);
 
-    const handleAddGroup = () => {
-        const newGroup = {id: nanoid(), name: groupName, color: groupColor};
-        adduserGroup(newGroup);
-        const updatedGroups = editingIndex !== null ? userGroups.map((group, index) => index === editingIndex ? newGroup : group) : [...userGroups, newGroup];
-        setUserGroups(updatedGroups);
-        localStorage.setItem('userGroups', JSON.stringify(updatedGroups));
-        setGroupName('');
-        setGroupColor('#ffffff');
-        setEditingIndex(null);
+    useEffect(() => {
+        fetchUserGroups();
+    }, []);
+
+    const fetchUserGroups = async () => {
+        try {
+            const response = await fetch(`${API_URL}api/ReserveApp/GetUserGroups`);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            setUserGroups(Array.isArray(data) ? data : []);
+        } catch (error) {
+            console.error('Błąd podczas pobierania grup użytkowników:', error);
+            toast.error('Błąd podczas pobierania grup użytkowników.');
+        }
+    };
+
+    const handleAddGroup = async () => {
+        if (!groupName || !groupColor) {
+            toast.error("Proszę uzupełnić wszystkie pola!");
+            return;
+        }
+
+        const newGroup = { GroupName: groupName, GroupColor: groupColor };
+
+        try {
+            let response;
+            if (editingId) {
+                response = await fetch(`${API_URL}api/ReserveApp/UpdateUserGroup/${editingId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newGroup)
+                });
+            } else {
+                response = await fetch(`${API_URL}api/ReserveApp/CreateUserGroup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newGroup)
+                });
+            }
+
+            if (response.ok) {
+                toast.success(editingId ? 'Grupa zaktualizowana pomyślnie' : 'Grupa dodana pomyślnie');
+                fetchUserGroups();
+                setGroupName('');
+                setGroupColor('#ffffff');
+                setEditingIndex(null);
+                setEditingId(null);
+            } else {
+                const errorData = await response.json();
+                toast.error(`Nie udało się ${editingId ? 'zaktualizować' : 'dodać'} grupy: ${errorData.message}`);
+            }
+        } catch (error) {
+            console.error('Błąd:', error);
+            toast.error(`Wystąpił błąd podczas ${editingId ? 'aktualizacji' : 'dodawania'} grupy`);
+        }
     };
 
     const handleEditGroup = (index, id) => {
-        editGroup(id, groupName, groupColor);
-        setGroupName(userGroups[index].name);
-        setGroupColor(userGroups[index].color);
+        const group = userGroups[index];
+        setGroupName(group.GroupName);
+        setGroupColor(group.GroupColor);
         setEditingIndex(index);
+        setEditingId(id);
     };
 
-    const handleDeleteGroup = (index, id) => {
-        deleteGroup(id)
-        const updatedGroups = userGroups.filter((_, i) => i !== index);
-        setUserGroups(updatedGroups);
-        localStorage.setItem('userGroups', JSON.stringify(updatedGroups));
+    const handleDeleteGroup = async (index, id) => {
+        try {
+            const response = await fetch(`${API_URL}api/ReserveApp/DeleteUserGroup/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                toast.success('Grupa usunięta pomyślnie');
+                fetchUserGroups();
+            } else {
+                const errorData = await response.json();
+                toast.error(`Nie udało się usunąć grupy: ${errorData.message}`);
+            }
+        } catch (error) {
+            console.error('Błąd podczas usuwania grupy:', error);
+            toast.error('Wystąpił błąd podczas usuwania grupy');
+        }
     };
 
     const handleSave = () => {
-        console.log('Groups saved:', userGroups);
-        handleSaveGroups(userGroups);
+        // Możesz zaimplementować dodatkowe logowanie lub zapisywanie stanu
+        console.log('Current user groups state:', userGroups);
     };
 
     return (
@@ -73,7 +136,7 @@ const Settings = ({
                     type="number"
                     value={numCourts}
                     onChange={(e) => setNumCourts(parseInt(e.target.value))}
-                    inputProps={{min: 1}}
+                    inputProps={{ min: 1 }}
                     fullWidth
                     margin="normal"
                 />
@@ -84,7 +147,7 @@ const Settings = ({
                     type="number"
                     value={openingHour}
                     onChange={(e) => setOpeningHour(parseInt(e.target.value))}
-                    inputProps={{min: 0, max: 23}}
+                    inputProps={{ min: 0, max: 23 }}
                     fullWidth
                     margin="normal"
                 />
@@ -93,7 +156,7 @@ const Settings = ({
                     type="number"
                     value={closingHour}
                     onChange={(e) => setClosingHour(parseInt(e.target.value))}
-                    inputProps={{min: 0, max: 23}}
+                    inputProps={{ min: 0, max: 23 }}
                     fullWidth
                     margin="normal"
                 />
@@ -117,16 +180,16 @@ const Settings = ({
                     <Button
                         variant="contained"
                         color="primary"
-                        startIcon={<Add/>}
+                        startIcon={<Add />}
                         onClick={handleAddGroup}
-                        sx={{mr: 2}}
+                        sx={{ mr: 2 }}
                     >
                         {editingIndex !== null ? 'Zaktualizuj grupę' : 'Dodaj grupę'}
                     </Button>
                     <Button
                         variant="contained"
                         color="secondary"
-                        startIcon={<Save/>}
+                        startIcon={<Save />}
                         onClick={handleSave}
                     >
                         Zapisz
@@ -137,27 +200,28 @@ const Settings = ({
                     <Typography variant="h6" gutterBottom>Lista grup</Typography>
                     <List>
                         {userGroups.map((group, index) => (
-                            <ListItem key={group.id}>
+                            <ListItem key={group.UserGroupId}>
                                 <ListItemIcon>
                                     <div style={{
-                                        backgroundColor: group.color,
+                                        backgroundColor: group.GroupColor,
                                         width: 24,
                                         height: 24,
                                         borderRadius: '50%'
-                                    }}/>
+                                    }} />
                                 </ListItemIcon>
-                                <ListItemText primary={group.name}/>
-                                <IconButton onClick={() => handleEditGroup(index, group.id)}>
-                                    <Edit/>
+                                <ListItemText primary={group.GroupName} />
+                                <IconButton onClick={() => handleEditGroup(index, group.UserGroupId)}>
+                                    <Edit />
                                 </IconButton>
-                                <IconButton onClick={() => handleDeleteGroup(index, group.id)}>
-                                    <Delete/>
+                                <IconButton onClick={() => handleDeleteGroup(index, group.UserGroupId)}>
+                                    <Delete />
                                 </IconButton>
                             </ListItem>
                         ))}
                     </List>
                 </Box>
             </Box>
+            <ToastContainer />
         </Box>
     );
 };

@@ -16,7 +16,7 @@ namespace reserveAPP.Services
         public void CreateUserGroup(UserGroupModel group)
         {
             string query = @"
-                INSERT INTO dbo.UserGroups (GroupName, GroupColor)
+                INSERT INTO UserGroups (GroupName, GroupColor)
                 VALUES (@GroupName, @GroupColor)";
 
             using (SqlConnection myConn = new SqlConnection(_connectionString))
@@ -34,7 +34,7 @@ namespace reserveAPP.Services
         public void UpdateUserGroup(int groupId, UserGroupModel group)
         {
             string query = @"
-                UPDATE dbo.UserGroups
+                UPDATE UserGroups
                 SET GroupName = @GroupName, GroupColor = @GroupColor
                 WHERE UserGroupId = @UserGroupId";
 
@@ -54,7 +54,7 @@ namespace reserveAPP.Services
 
         public DataTable GetUserGroups()
         {
-            string query = "SELECT UserGroupId, GroupName, GroupColor FROM dbo.UserGroups";
+            string query = "SELECT UserGroupId, GroupName, GroupColor FROM UserGroups";
             DataTable table = new DataTable();
 
             using (SqlConnection myConn = new SqlConnection(_connectionString))
@@ -74,7 +74,7 @@ namespace reserveAPP.Services
 
         public DataTable GetUserGroup(int groupId)
         {
-            string query = "SELECT UserGroupId, GroupName, GroupColor FROM dbo.UserGroups WHERE UserGroupId = @UserGroupId";
+            string query = "SELECT UserGroupId, GroupName, GroupColor FROM UserGroups WHERE UserGroupId = @UserGroupId";
             DataTable table = new DataTable();
 
             using (SqlConnection myConn = new SqlConnection(_connectionString))
@@ -95,7 +95,7 @@ namespace reserveAPP.Services
 
         public void DeleteUserGroup(int groupId)
         {
-            string query = "DELETE FROM dbo.UserGroups WHERE UserGroupId = @UserGroupId";
+            string query = "DELETE FROM UserGroups WHERE UserGroupId = @UserGroupId";
 
             using (SqlConnection myConn = new SqlConnection(_connectionString))
             {

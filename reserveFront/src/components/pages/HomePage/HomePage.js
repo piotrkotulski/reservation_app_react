@@ -15,19 +15,19 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import TodayIcon from '@mui/icons-material/Today';
 
 const HomePage = ({
-                      API_URL,
-                      courtHeaders,
-                      timeSlots,
-                      selectedSlot,
-                      selectedReservation,
-                      confirmReservation,
-                      updateReservation,
-                      handleCloseModal,
-                      confirmDelete,
-                      selectedDate,
-                      setSelectedDate,
-                      userGroups
-                  }) => {
+    API_URL,
+    courtHeaders,
+    timeSlots,
+    selectedSlot,
+    selectedReservation,
+    confirmReservation,
+    updateReservation,
+    handleCloseModal,
+    confirmDelete,
+    selectedDate,
+    setSelectedDate,
+    userGroups
+}) => {
     const [duration, setDuration] = useState(30);
     const [multiSportCard, setMultiSportCard] = useState(false);
     const [clientName, setClientName] = useState('');
@@ -45,10 +45,10 @@ const HomePage = ({
     const [changePrice, setChangePrice] = useState(false);
     const [selectedTrainer, setSelectedTrainer] = useState(null);
     const [trainers, setTrainers] = useState([]);
+    const [fetchedUserGroups, setFetchedUserGroups] = useState([]); // Stan dla pobranych grup użytkowników
 
     useEffect(() => {
         if (selectedReservation) {
-            console.log("Selected Reservation: ", selectedReservation);
             setDuration(
                 (new Date(`1970-01-01T${selectedReservation.EndTime}`).getTime() - new Date(`1970-01-01T${selectedReservation.StartTime}`).getTime()) / 60000
             );
@@ -76,6 +76,7 @@ const HomePage = ({
     useEffect(() => {
         fetchUsers();
         fetchTrainers();
+        fetchUserGroups(); // Pobranie grup użytkowników z API
     }, []);
 
     const fetchUsers = async () => {
@@ -90,11 +91,21 @@ const HomePage = ({
 
     const fetchTrainers = async () => {
         try {
-            const response = await fetch(`${API_URL}api/ReserveApp/GetTrainers`);
+            const response = await fetch(`${API_URL}api/ReserveApp/GetAllTrainers`);
             const trainers = await response.json();
             setTrainers(trainers);
         } catch (error) {
             console.error("Error fetching trainers:", error);
+        }
+    };
+
+    const fetchUserGroups = async () => {
+        try {
+            const response = await fetch(`${API_URL}api/ReserveApp/GetUserGroups`);
+            const groups = await response.json();
+            setFetchedUserGroups(groups);
+        } catch (error) {
+            console.error("Error fetching user groups:", error);
         }
     };
 
@@ -116,7 +127,7 @@ const HomePage = ({
         if (user) {
             setClientName(`${user.FirstName} ${user.LastName}`);
             setPhoneNumber(user.PhoneNumber);
-            //setEmail(user.Email);
+            setEmail(user.Email);
             setUserData(user);
             setSelectedGroup(user.GroupName || '');
         }
@@ -138,15 +149,11 @@ const HomePage = ({
         setSelectedDate(new Date().toISOString().split('T')[0]);
     };
 
-
-    // do dodania pole email po dodaniu w bazie
     const handleConfirmReservation = () => {
-        console.log("Confirming Reservation with Group: ", selectedGroup);
         confirmReservation(courtId, pickedHour, clientName, phoneNumber, notes, multiSportCard, duration, selectedGroup, selectedTrainer, price, paymentStatus);
     };
 
     const handleUpdateReservation = () => {
-        console.log("Updating Reservation with Group: ", selectedGroup);
         updateReservation(courtId, pickedHour, selectedReservation.ReservationId, clientName, phoneNumber, notes, multiSportCard, duration, selectedGroup, selectedTrainer, price, paymentStatus);
     };
 
@@ -179,10 +186,10 @@ const HomePage = ({
 
             <div className={styles.legend}>
                 <ul><span>Grupy:</span>
-                    {userGroups.map((group, index) => (
+                    {fetchedUserGroups.map((group, index) => (
                         <li key={index} className={styles.legendItem}>
-                            <span className={styles.legendCircle} style={{ backgroundColor: group.color }}></span>
-                            {group.name}
+                            <span className={styles.legendCircle} style={{ backgroundColor: group.GroupColor }}></span>
+                            {group.GroupName}
                         </li>
                     ))}
                 </ul>
@@ -190,10 +197,10 @@ const HomePage = ({
 
             <table className="reservation-calendar">
                 <thead>
-                <tr>
-                    <th className={styles.hourCell}>Godzina</th>
-                    {courtHeaders}
-                </tr>
+                    <tr>
+                        <th className={styles.hourCell}>Godzina</th>
+                        {courtHeaders}
+                    </tr>
                 </thead>
                 <tbody>{timeSlots}</tbody>
             </table>
@@ -281,9 +288,9 @@ const HomePage = ({
                                 label="Grupa"
                                 onChange={(e) => setSelectedGroup(e.target.value)}
                             >
-                                {userGroups.map((group, index) => (
-                                    <MenuItem key={index} value={group.name}>
-                                        {group.name}
+                                {fetchedUserGroups.map((group, index) => (
+                                    <MenuItem key={index} value={group.GroupName}>
+                                        {group.GroupName}
                                     </MenuItem>
                                 ))}
                             </Select>
@@ -428,9 +435,9 @@ const HomePage = ({
                                 label="Grupa"
                                 onChange={(e) => setSelectedGroup(e.target.value)}
                             >
-                                {userGroups.map((group, index) => (
-                                    <MenuItem key={index} value={group.name}>
-                                        {group.name}
+                                {fetchedUserGroups.map((group, index) => (
+                                    <MenuItem key={index} value={group.GroupName}>
+                                        {group.GroupName}
                                     </MenuItem>
                                 ))}
                             </Select>
